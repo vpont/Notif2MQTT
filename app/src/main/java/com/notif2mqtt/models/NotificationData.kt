@@ -8,7 +8,6 @@ data class NotificationData(
     val title: String?,
     val text: String?,
     val timestamp: Long,
-    val priority: Int,      // -2 (MIN) to 2 (MAX)
     val importance: Int     // 0 (NONE) to 5 (MAX)
 ) {
     fun toJson(): String {
@@ -18,7 +17,6 @@ data class NotificationData(
         json.put("title", title ?: "")
         json.put("text", text ?: "")
         json.put("timestamp", timestamp)
-        json.put("priority", priority)
         json.put("importance", importance)
         json.put("urgency", getUrgencyLevel())  // Helper field
         return json.toString()
@@ -39,7 +37,6 @@ data class NotificationData(
             appName: String,
             title: String?,
             text: String?,
-            priority: Int = 0,
             importance: Int = 3
         ): NotificationData {
             return NotificationData(
@@ -48,7 +45,6 @@ data class NotificationData(
                 title = title,
                 text = text,
                 timestamp = System.currentTimeMillis(),
-                priority = priority,
                 importance = importance
             )
         }

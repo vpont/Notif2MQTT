@@ -49,8 +49,7 @@ class NotificationListener : NotificationListenerService() {
             val text = extras.getCharSequence("android.text")?.toString()
             val appName = getAppName(packageName)
             
-            // Extract priority and importance
-            val priority = notification.priority  // -2 to 2 (MIN to MAX)
+            // Extract importance
             val importance = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 sbn.notification.channelId?.let { channelId ->
                     try {
@@ -70,11 +69,10 @@ class NotificationListener : NotificationListenerService() {
                 appName = appName,
                 title = title,
                 text = text,
-                priority = priority,
                 importance = importance
             )
 
-            Log.d(TAG, "Notification captured: ${notificationData.appName} - ${notificationData.title} (priority: $priority, importance: $importance)")
+            Log.d(TAG, "Notification captured: ${notificationData.appName} - ${notificationData.title} (importance: $importance)")
 
             // Send to MQTT service
             MqttService.publishMessage(this, notificationData.toJson())

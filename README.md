@@ -10,7 +10,7 @@ A lightweight native Android app that captures all device notifications and send
 - 🚫 **App Exclusions**: Filter specific applications
 - ⚡ **Background Service**: Continuous operation
 - 🔋 **Optimized**: Minimal battery consumption
-- 🎯 **Urgency Levels**: Captures notification priority and importance
+- 🎯 **Urgency Levels**: Captures notification importance
 
 ## Requirements
 
@@ -25,7 +25,7 @@ A lightweight native Android app that captures all device notifications and send
 ```bash
 # Clone repository
 git clone <repository-url>
-cd notif2mqtt
+cd Notif2MQTT
 
 # Build APK
 ./gradlew assembleDebug
@@ -75,7 +75,7 @@ Notifications are sent in JSON format:
   "title": "New message",
   "text": "Hello, how are you?",
   "timestamp": 1703001234567,
-  "priority": 1,
+
   "importance": 4,
   "urgency": "high"
 }
@@ -85,7 +85,7 @@ Notifications are sent in JSON format:
 
 - **high**: Critical notifications (calls, alarms)
 - **normal**: Standard messages (WhatsApp, Telegram)
-- **low**: Low priority notifications
+- **low**: Low importance notifications
 - **minimal**: Silent notifications
 
 ## Linux Integration
@@ -130,7 +130,7 @@ The script will display Android notifications on your Linux desktop using `notif
 │   NotificationListenerService       │
 │   - Captures notifications          │
 │   - Filters excluded apps           │
-│   - Extracts priority/importance    │
+│   - Extracts importance             │
 └──────────────┬──────────────────────┘
                │
                ▼

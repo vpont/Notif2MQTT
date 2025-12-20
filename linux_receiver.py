@@ -35,7 +35,6 @@ def on_message(client, userdata, msg):
         title = data.get('title', 'Notification')
         text = data.get('text', '')
         timestamp = data.get('timestamp', 0)
-        priority = data.get('priority', 0)
         importance = data.get('importance', 3)
         urgency = data.get('urgency', 'normal')
         
@@ -52,7 +51,7 @@ def on_message(client, userdata, msg):
         print(f"   Title: {title}")
         print(f"   Text: {text}")
         print(f"   Package: {package}")
-        print(f"   Urgency: {urgency} (priority: {priority}, importance: {importance})")
+        print(f"   Urgency: {urgency} (importance: {importance})")
         
         # Determine urgency for notify-send
         notify_urgency = 'normal'
@@ -110,6 +109,7 @@ def main():
         print("\n\n👋 Stopping receiver...")
         client.disconnect()
         sys.exit(0)
+
     except Exception as e:
         print(f"\n✗ Error: {e}")
         sys.exit(1)
