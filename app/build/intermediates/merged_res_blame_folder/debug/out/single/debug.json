@@ -1,0 +1,62 @@
+[
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/victor/.gradle/daemon/8.2/com.notif2mqtt.app-merged_res-32:/layout_item_app.xml.flat",
+        "source": "/home/victor/.gradle/daemon/8.2/com.notif2mqtt.app-main-34:/layout/item_app.xml"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/victor/.gradle/daemon/8.2/com.notif2mqtt.app-merged_res-32:/layout_activity_main.xml.flat",
+        "source": "/home/victor/.gradle/daemon/8.2/com.notif2mqtt.app-main-34:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.notif2mqtt.app-main-34:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.notif2mqtt.app-merged_res-32:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.notif2mqtt.app-main-34:/drawable/ic_launcher_foreground.xml"
+    }
+]

@@ -1,0 +1,182 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.notif2mqtt"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- Required permissions -->
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:6:5-67
+12-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:6:22-64
+13    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+13-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:7:5-77
+13-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:7:22-74
+14    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+14-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:8:5-87
+14-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:8:22-84
+15    <uses-permission android:name="android.permission.WAKE_LOCK" />
+15-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:9:5-68
+15-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:9:22-65
+16    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+16-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:10:5-77
+16-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:10:22-74
+17    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+17-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:11:5-79
+17-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:11:22-76
+18
+19    <permission
+19-->[androidx.core:core:1.12.0] /home/victor/.gradle/caches/transforms-3/2ccd268e0ca2e1cd10ec650ac8067a3e/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+20        android:name="com.notif2mqtt.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+20-->[androidx.core:core:1.12.0] /home/victor/.gradle/caches/transforms-3/2ccd268e0ca2e1cd10ec650ac8067a3e/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+21        android:protectionLevel="signature" />
+21-->[androidx.core:core:1.12.0] /home/victor/.gradle/caches/transforms-3/2ccd268e0ca2e1cd10ec650ac8067a3e/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+22
+23    <uses-permission android:name="com.notif2mqtt.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+23-->[androidx.core:core:1.12.0] /home/victor/.gradle/caches/transforms-3/2ccd268e0ca2e1cd10ec650ac8067a3e/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+23-->[androidx.core:core:1.12.0] /home/victor/.gradle/caches/transforms-3/2ccd268e0ca2e1cd10ec650ac8067a3e/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+24
+25    <application
+25-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:13:5-53:19
+26        android:allowBackup="true"
+26-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:14:9-35
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.12.0] /home/victor/.gradle/caches/transforms-3/2ccd268e0ca2e1cd10ec650ac8067a3e/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
+28        android:extractNativeLibs="false"
+29        android:icon="@mipmap/ic_launcher"
+29-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:15:9-43
+30        android:label="@string/app_name"
+30-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:16:9-41
+31        android:roundIcon="@mipmap/ic_launcher_round"
+31-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:17:9-54
+32        android:supportsRtl="true"
+32-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:18:9-35
+33        android:theme="@style/Theme.Material3.DayNight" >
+33-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:19:9-56
+34
+35        <!-- Main Activity -->
+36        <activity
+36-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:23:9-31:20
+37            android:name="com.notif2mqtt.MainActivity"
+37-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:24:13-41
+38            android:exported="true"
+38-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:25:13-36
+39            android:label="@string/app_name" >
+39-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:26:13-45
+40            <intent-filter>
+40-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:27:13-30:29
+41                <action android:name="android.intent.action.MAIN" />
+41-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:28:17-69
+41-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:28:25-66
+42
+43                <category android:name="android.intent.category.LAUNCHER" />
+43-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:29:17-77
+43-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:29:27-74
+44            </intent-filter>
+45        </activity>
+46
+47        <!-- Notification Listener Service -->
+48        <service
+48-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:34:9-41:19
+49            android:name="com.notif2mqtt.NotificationListener"
+49-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:35:13-49
+50            android:exported="true"
+50-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:36:13-36
+51            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+51-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:37:13-87
+52            <intent-filter>
+52-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:38:13-40:29
+53                <action android:name="android.service.notification.NotificationListenerService" />
+53-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:39:17-99
+53-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:39:25-96
+54            </intent-filter>
+55        </service>
+56
+57        <!-- MQTT Service -->
+58        <service
+58-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:44:9-48:56
+59            android:name="com.notif2mqtt.mqtt.MqttService"
+59-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:45:13-45
+60            android:enabled="true"
+60-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:46:13-35
+61            android:exported="false"
+61-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:47:13-37
+62            android:foregroundServiceType="dataSync" />
+62-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:48:13-53
+63
+64        <!-- Paho MQTT Service -->
+65        <service android:name="org.eclipse.paho.android.service.MqttService" />
+65-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:51:9-80
+65-->/home/victor/Projects/Personal/notif2mqtt/app/src/main/AndroidManifest.xml:51:18-77
+66
+67        <provider
+67-->[androidx.emoji2:emoji2:1.2.0] /home/victor/.gradle/caches/transforms-3/6f6fec51fc0bf858d6900b90dd62d6da/transformed/emoji2-1.2.0/AndroidManifest.xml:24:9-32:20
+68            android:name="androidx.startup.InitializationProvider"
+68-->[androidx.emoji2:emoji2:1.2.0] /home/victor/.gradle/caches/transforms-3/6f6fec51fc0bf858d6900b90dd62d6da/transformed/emoji2-1.2.0/AndroidManifest.xml:25:13-67
+69            android:authorities="com.notif2mqtt.androidx-startup"
+69-->[androidx.emoji2:emoji2:1.2.0] /home/victor/.gradle/caches/transforms-3/6f6fec51fc0bf858d6900b90dd62d6da/transformed/emoji2-1.2.0/AndroidManifest.xml:26:13-68
+70            android:exported="false" >
+70-->[androidx.emoji2:emoji2:1.2.0] /home/victor/.gradle/caches/transforms-3/6f6fec51fc0bf858d6900b90dd62d6da/transformed/emoji2-1.2.0/AndroidManifest.xml:27:13-37
+71            <meta-data
+71-->[androidx.emoji2:emoji2:1.2.0] /home/victor/.gradle/caches/transforms-3/6f6fec51fc0bf858d6900b90dd62d6da/transformed/emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
+72                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+72-->[androidx.emoji2:emoji2:1.2.0] /home/victor/.gradle/caches/transforms-3/6f6fec51fc0bf858d6900b90dd62d6da/transformed/emoji2-1.2.0/AndroidManifest.xml:30:17-75
+73                android:value="androidx.startup" />
+73-->[androidx.emoji2:emoji2:1.2.0] /home/victor/.gradle/caches/transforms-3/6f6fec51fc0bf858d6900b90dd62d6da/transformed/emoji2-1.2.0/AndroidManifest.xml:31:17-49
+74            <meta-data
+74-->[androidx.lifecycle:lifecycle-process:2.6.1] /home/victor/.gradle/caches/transforms-3/bbd237f7361595eb5e5cf3bde898df2a/transformed/lifecycle-process-2.6.1/AndroidManifest.xml:29:13-31:52
+75                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+75-->[androidx.lifecycle:lifecycle-process:2.6.1] /home/victor/.gradle/caches/transforms-3/bbd237f7361595eb5e5cf3bde898df2a/transformed/lifecycle-process-2.6.1/AndroidManifest.xml:30:17-78
+76                android:value="androidx.startup" />
+76-->[androidx.lifecycle:lifecycle-process:2.6.1] /home/victor/.gradle/caches/transforms-3/bbd237f7361595eb5e5cf3bde898df2a/transformed/lifecycle-process-2.6.1/AndroidManifest.xml:31:17-49
+77            <meta-data
+77-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+78                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+78-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+79                android:value="androidx.startup" />
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+80        </provider>
+81
+82        <receiver
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+83            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+83-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+84            android:directBootAware="false"
+84-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+85            android:enabled="true"
+85-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+86            android:exported="true"
+86-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+87            android:permission="android.permission.DUMP" >
+87-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+88            <intent-filter>
+88-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+89                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+89-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+89-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+90            </intent-filter>
+91            <intent-filter>
+91-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+92                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+92-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+92-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+93            </intent-filter>
+94            <intent-filter>
+94-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+95                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+95-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+95-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+96            </intent-filter>
+97            <intent-filter>
+97-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+98                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+98-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+98-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/victor/.gradle/caches/transforms-3/90a5c045bb237d34bfde7528c354fcd3/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+99            </intent-filter>
+100        </receiver>
+101    </application>
+102
+103</manifest>
