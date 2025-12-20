@@ -113,7 +113,6 @@ class MainActivity : AppCompatActivity() {
     private fun loadInstalledApps() {
         val packageManager = packageManager
         val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-            .filter { it.flags and ApplicationInfo.FLAG_SYSTEM == 0 } // Only user apps
             .map { appInfo ->
                 AppInfo(
                     packageName = appInfo.packageName,
