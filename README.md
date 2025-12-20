@@ -75,7 +75,7 @@ Notifications are sent in JSON format:
   "title": "New message",
   "text": "Hello, how are you?",
   "timestamp": 1703001234567,
-
+  "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACA...",
   "importance": 4,
   "urgency": "high"
 }
