@@ -4,12 +4,18 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Background circle -->
     <path
-        android:fillColor="#3DDC84"
-        android:pathData="M0,0h108v108h-108z" />
+        android:fillColor="#2196F3"
+        android:pathData="M54,54m-50,0a50,50 0,1 1,100 0a50,50 0,1 1,-100 0" />
+
+    <!-- Notification bell -->
     <path
-        android:fillColor="#00000000"
-        android:pathData="M9,0L9,108"
-        android:strokeWidth="0.8"
-        android:strokeColor="#33FFFFFF" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,25 C48,25 43,30 43,36 L43,45 C38.6,46.3 35.5,50.3 35.5,55 L72.5,55 C72.5,50.3 69.4,46.3 65,45 L65,36 C65,30 60,25 54,25 Z M54,65 C51.79,65 49.86,63.21 49.62,61 L58.38,61 C58.14,63.21 56.21,65 54,65 Z" />
+
+    <!-- Connection waves -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,75 L35,75 L37,77 L35,79 L30,79 L32,77 Z M40,75 L45,75 L47,77 L45,79 L40,79 L42,77 Z M50,75 L55,75 L57,77 L55,79 L50,79 L52,77 Z" />
 </vector>
