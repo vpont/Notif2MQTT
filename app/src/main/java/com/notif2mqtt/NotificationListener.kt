@@ -120,8 +120,8 @@ class NotificationListener : NotificationListenerService() {
             }
 
             val bitmap = drawableToBitmap(drawable)
-            // Resize to 64x64 to safe bandwidth
-            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 64, 64, false)
+            // Resize to 128x128 with bilinear filtering for better quality
+            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, true)
             bitmapToBase64(resizedBitmap)
         } catch (e: Exception) {
             Log.e(TAG, "Error processing icon", e)
