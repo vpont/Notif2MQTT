@@ -303,7 +303,7 @@ def main():
     if config["ssl"]:
         import ssl
 
-        client.tls_set(tls_version=ssl.PROTOCOL_TLS)
+        client.tls_set(cert_reqs=ssl.CERT_NONE)
         if VERBOSE:
             print(f"{Colors.BLUE}🔒 SSL/TLS enabled for secure connection{Colors.ENDC}")
 
