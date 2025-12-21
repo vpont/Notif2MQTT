@@ -8,6 +8,7 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -18,21 +19,32 @@ import android.widget.TextView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
+import com.notif2mqtt.models.ConnectionState
+import kotlinx.coroutines.launch
 import com.notif2mqtt.mqtt.MqttService
 
 class MainActivity : AppCompatActivity() {
     private lateinit var settings: SettingsManager
     private lateinit var appsAdapter: AppsAdapter
+    private lateinit var mqttManager: com.notif2mqtt.mqtt.MqttManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         settings = SettingsManager(this)
+        mqttManager = com.notif2mqtt.mqtt.MqttManager(this)
 
         setupViews()
         updatePermissionStatus()
         loadInstalledApps()
+
+        // Observe connection state
+        lifecycleScope.launch {
+            mqttManager.connectionState.collect { state ->
+                updateConnectionStatus(state)
+            }
+        }
     }
 
     override fun onResume() {
@@ -71,13 +83,13 @@ class MainActivity : AppCompatActivity() {
         val password = findViewById<TextInputEditText>(R.id.passwordInput).text.toString()
 
         if (broker.isEmpty() || topic.isEmpty()) {
-            Toast.makeText(this, "Broker and Topic are required", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.broker_topic_required), Toast.LENGTH_SHORT).show()
             return
         }
 
         // Validate broker URL format
         if (!isValidBrokerUrl(broker)) {
-            Toast.makeText(this, "Invalid broker URL. Use tcp://host:port or ssl://host:port", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.invalid_broker_url), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -164,6 +176,24 @@ class MainActivity : AppCompatActivity() {
             .sortedBy { it.name }
 
         appsAdapter.updateApps(apps)
+    }
+
+    private fun updateConnectionStatus(state: ConnectionState) {
+        val statusText = when (state) {
+            ConnectionState.CONNECTING -> getString(R.string.connecting)
+            ConnectionState.CONNECTED -> if (settings.mqttBroker.startsWith("ssl://")) getString(R.string.connected_tls) else getString(R.string.connected)
+            ConnectionState.DISCONNECTED -> getString(R.string.disconnected)
+            ConnectionState.ERROR -> getString(R.string.error)
+        }
+
+        findViewById<TextView>(R.id.statusText).text = statusText
+
+        val color = when (state) {
+            ConnectionState.CONNECTED -> android.R.color.holo_green_dark
+            ConnectionState.ERROR -> android.R.color.holo_red_dark
+            else -> android.R.color.darker_gray
+        }
+        findViewById<TextView>(R.id.statusText).setTextColor(getColor(color))
     }
 }
 

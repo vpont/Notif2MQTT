@@ -3,17 +3,26 @@ package com.notif2mqtt.mqtt
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkRequest
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.lifecycleScope
 import com.notif2mqtt.MainActivity
 import com.notif2mqtt.R
+import com.notif2mqtt.models.ConnectionState
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MqttService : Service() {
     private lateinit var mqttManager: MqttManager
     private var wakeLock: PowerManager.WakeLock? = null
+    private val serviceScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default + kotlinx.coroutines.SupervisorJob())
     
     companion object {
         private const val TAG = "MqttService"
@@ -47,14 +56,20 @@ class MqttService : Service() {
                 context.startService(intent)
             }
         }
+
+        fun getConnectionState(context: Context): ConnectionState {
+            // This is a simplified approach - in a real app you might want to use a more robust method
+            // For now, we'll create a new instance to check state
+            return MqttManager(context).connectionState.value
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Service created")
-        
+
         mqttManager = MqttManager(this)
-        
+
         // Acquire wake lock to keep service running
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(
@@ -62,12 +77,15 @@ class MqttService : Service() {
             "Notif2MQTT::MqttServiceWakeLock"
         )
         wakeLock?.acquire()
-        
+
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, createNotification("Connecting..."))
-        
-        // Connect to MQTT broker
-        connectToMqtt()
+        startForeground(NOTIFICATION_ID, createNotification(getString(R.string.connecting)))
+
+        // Launch connection coroutine
+        serviceScope.launch {
+            setupNetworkMonitoring()
+            connectWithRetry()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -87,37 +105,56 @@ class MqttService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "Service destroyed")
+        serviceScope.cancel() // Cancel all coroutines
         mqttManager.disconnect()
         wakeLock?.release()
     }
 
-    private fun connectToMqtt() {
-        mqttManager.connect { success, error ->
-            if (success) {
-                Log.i(TAG, "MQTT connected successfully")
-                updateNotification("Connected")
+    private suspend fun connectWithRetry() {
+        while (true) {
+                    if (mqttManager.connectionState.value != ConnectionState.CONNECTED) {
+                val result = mqttManager.connectAsync()
+                if (result.isSuccess) {
+                    updateNotification(getString(R.string.connected))
+                } else {
+                    updateNotification(getString(R.string.disconnected))
+                    delay(30000) // Wait 30 seconds before retry
+                }
             } else {
-                Log.e(TAG, "MQTT connection failed: $error")
-                updateNotification("Connection failed")
-                
-                // Retry connection after delay
-                android.os.Handler(mainLooper).postDelayed({
-                    if (!mqttManager.isConnected()) {
-                        connectToMqtt()
-                    }
-                }, 5000)
+                delay(30000) // Check every 30 seconds if still connected
             }
         }
+    }
+
+    private fun setupNetworkMonitoring() {
+        val connectivityManager = getSystemService(ConnectivityManager::class.java)
+        val networkRequest = NetworkRequest.Builder().build()
+
+        connectivityManager.registerNetworkCallback(networkRequest, object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                serviceScope.launch {
+                    delay(5000) // 5 second delay before retrying
+            if (mqttManager.connectionState.value != ConnectionState.CONNECTED) {
+                        mqttManager.connectAsync()
+                    }
+                }
+            }
+
+            override fun onLost(network: Network) {
+                mqttManager.connectionState.value = ConnectionState.DISCONNECTED
+                updateNotification(getString(R.string.disconnected))
+            }
+        })
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "MQTT Service",
+                getString(R.string.service_channel_name),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Keeps MQTT connection alive"
+                description = getString(R.string.service_channel_description)
                 setShowBadge(false)
             }
             
@@ -136,8 +173,8 @@ class MqttService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Notif2MQTT")
-            .setContentText("MQTT Status: $status")
+            .setContentTitle(getString(R.string.service_notification_title))
+            .setContentText(getString(R.string.service_notification_template, status))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(pendingIntent)
             .setOngoing(true)

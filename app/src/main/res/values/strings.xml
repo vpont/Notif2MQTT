@@ -32,4 +32,21 @@
     
     <string name="settings_saved">Settings saved successfully</string>
     <string name="enable_notification_access">Please enable notification access in Settings</string>
+
+    <!-- Connection Status -->
+    <string name="connecting">Connecting…</string>
+    <string name="connected">Connected</string>
+    <string name="connected_tls">Connected (TLS)</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="error">Error</string>
+
+    <!-- Validation Messages -->
+    <string name="broker_topic_required">Broker and Topic are required</string>
+    <string name="invalid_broker_url">Invalid broker URL. Use tcp://host:port or ssl://host:port</string>
+
+    <!-- Service Notification -->
+    <string name="service_channel_name">MQTT Service</string>
+    <string name="service_channel_description">Keeps MQTT connection alive</string>
+    <string name="service_notification_title">Notif2MQTT</string>
+    <string name="service_notification_template">MQTT Status: %s</string>
 </resources>

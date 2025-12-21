@@ -3,6 +3,11 @@ package com.notif2mqtt.mqtt
 import android.content.Context
 import android.util.Log
 import com.notif2mqtt.SettingsManager
+import com.notif2mqtt.models.ConnectionState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import java.security.SecureRandom
@@ -16,6 +21,9 @@ class MqttManager(private val context: Context) {
     private var mqttClient: MqttClient? = null
     private val settings = SettingsManager(context)
     private var connectionCallback: ((Boolean, String?) -> Unit)? = null
+
+    // Connection state management
+    val connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
 
     companion object {
         private const val TAG = "MqttManager"
@@ -38,17 +46,18 @@ class MqttManager(private val context: Context) {
         return sslContext.socketFactory
     }
 
+    // Legacy synchronous connect method (deprecated, use connectAsync)
     fun connect(callback: (Boolean, String?) -> Unit) {
         this.connectionCallback = callback
-        
+
         try {
             val broker = settings.mqttBroker
             val clientId = settings.mqttClientId
-            
+
             Log.d(TAG, "Connecting to MQTT broker: $broker with client ID: $clientId")
-            
+
             mqttClient = MqttClient(broker, clientId, MemoryPersistence())
-            
+
             val options = MqttConnectOptions().apply {
                 isCleanSession = true
                 connectionTimeout = TIMEOUT
@@ -70,29 +79,95 @@ class MqttManager(private val context: Context) {
                     }
                 }
             }
-            
+
             mqttClient?.setCallback(object : MqttCallback {
                 override fun connectionLost(cause: Throwable?) {
                     Log.w(TAG, "Connection lost: ${cause?.message}")
+                    connectionState.value = ConnectionState.DISCONNECTED
                     connectionCallback?.invoke(false, "Connection lost: ${cause?.message}")
                 }
-                
+
                 override fun messageArrived(topic: String?, message: MqttMessage?) {
                     // Not used for publishing-only client
                 }
-                
+
                 override fun deliveryComplete(token: IMqttDeliveryToken?) {
                     Log.d(TAG, "Message delivered")
                 }
             })
-            
+
             mqttClient?.connect(options)
             Log.i(TAG, "Connected to MQTT broker successfully")
+            connectionState.value = ConnectionState.CONNECTED
             callback(true, null)
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to connect to MQTT broker", e)
+            connectionState.value = ConnectionState.ERROR
             callback(false, e.message)
+        }
+    }
+
+    // New async connect method with state management
+    suspend fun connectAsync(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            withTimeout(15000) { // 15 second timeout
+                connectionState.value = ConnectionState.CONNECTING
+
+                val broker = settings.mqttBroker
+                val clientId = settings.mqttClientId
+
+                Log.d(TAG, "Connecting to MQTT broker: $broker with client ID: $clientId")
+
+                mqttClient = MqttClient(broker, clientId, MemoryPersistence())
+
+                val options = MqttConnectOptions().apply {
+                    isCleanSession = true
+                    connectionTimeout = TIMEOUT
+                    keepAliveInterval = KEEP_ALIVE
+                    isAutomaticReconnect = true
+
+                    // Configure SSL if using ssl:// protocol
+                    if (broker.startsWith("ssl://")) {
+                        socketFactory = createSSLSocketFactory()
+                    }
+
+                    // Set credentials if provided
+                    val username = settings.mqttUsername
+                    val password = settings.mqttPassword
+                    if (username.isNotEmpty()) {
+                        userName = username
+                        if (password.isNotEmpty()) {
+                            setPassword(password.toCharArray())
+                        }
+                    }
+                }
+
+                mqttClient?.setCallback(object : MqttCallback {
+                    override fun connectionLost(cause: Throwable?) {
+                        Log.w(TAG, "Connection lost: ${cause?.message}")
+                        connectionState.value = ConnectionState.DISCONNECTED
+                        connectionCallback?.invoke(false, "Connection lost: ${cause?.message}")
+                    }
+
+                    override fun messageArrived(topic: String?, message: MqttMessage?) {
+                        // Not used for publishing-only client
+                    }
+
+                    override fun deliveryComplete(token: IMqttDeliveryToken?) {
+                        Log.d(TAG, "Message delivered")
+                    }
+                })
+
+                mqttClient?.connect(options)
+                Log.i(TAG, "Connected to MQTT broker successfully")
+                connectionState.value = ConnectionState.CONNECTED
+                Result.success(Unit)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to connect to MQTT broker", e)
+            connectionState.value = ConnectionState.ERROR
+            Result.failure(e)
         }
     }
 
@@ -122,6 +197,7 @@ class MqttManager(private val context: Context) {
             mqttClient?.disconnect()
             mqttClient?.close()
             mqttClient = null
+            connectionState.value = ConnectionState.DISCONNECTED
             Log.i(TAG, "Disconnected from MQTT broker")
         } catch (e: Exception) {
             Log.e(TAG, "Error disconnecting from MQTT broker", e)
