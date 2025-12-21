@@ -6,7 +6,8 @@ A lightweight native Android app that captures all device notifications and send
 
 - ✨ **Native & Lightweight**: Pure Kotlin with Android SDK
 - 🔔 **Notification Capture**: Captures all system notifications
-- 📡 **MQTT Client**: Real-time sending to MQTT broker
+- 📡 **MQTT Client**: Real-time sending to MQTT broker with SSL/TLS support
+- 🔒 **Secure Connections**: Support for encrypted MQTT connections (`ssl://`)
 - 🚫 **App Exclusions**: Filter specific applications
 - ⚡ **Background Service**: Continuous operation
 - 🔋 **Optimized**: Minimal battery consumption
@@ -40,7 +41,8 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 In the app, configure:
 
-- **Broker URL**: `tcp://IP:PORT` (e.g., `tcp://192.168.1.100:1883`)
+- **Broker URL**: `tcp://IP:PORT` for unencrypted or `ssl://IP:PORT` for encrypted connections
+  - Examples: `tcp://192.168.1.100:1883` (unencrypted) or `ssl://broker.example.com:8883` (encrypted)
 - **Topic**: MQTT topic for notifications (e.g., `notif2mqtt/notifications`)
 - **Username/Password**: (Optional) Broker credentials
 
@@ -194,9 +196,10 @@ sudo ./uninstall.sh
 
 ### App can't connect to MQTT broker
 
-- Verify broker URL is correct (must include `tcp://`)
+- Verify broker URL is correct (must include `tcp://` for unencrypted or `ssl://` for encrypted connections)
+- For SSL connections, ensure the broker uses a valid certificate or self-signed certificates are accepted
 - Ensure Android device is on the same network as the broker
-- Verify port is open (default 1883)
+- Verify port is open (default 1883 for TCP, 8883 for SSL)
 - Check credentials if broker requires authentication
 
 ### Service stops
@@ -211,7 +214,7 @@ sudo ./uninstall.sh
 
 ## Dependencies
 
-- Eclipse Paho MQTT Client (1.2.5)
+- Eclipse Paho MQTT Client (1.2.5) with SSL/TLS support
 - AndroidX Core, AppCompat, Material Design
 - RecyclerView
 
