@@ -54,12 +54,13 @@ class NotificationListener : NotificationListenerService() {
 
             val title = extras.getCharSequence("android.title")?.toString()
             val text = extras.getCharSequence("android.text")?.toString()
+            val category = notification.category
             val appName = getAppName(packageName)
             val iconBase64 = getNotificationIcon(notification, packageName)
 
             // Extract importance
             val importance = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                sbn.notification.channelId?.let { channelId ->
+                notification.channelId?.let { channelId ->
                     try {
                         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
                         notificationManager.getNotificationChannel(channelId)?.importance ?: 3
@@ -78,6 +79,7 @@ class NotificationListener : NotificationListenerService() {
                 title = title,
                 text = text,
                 importance = importance,
+                category = category,
                 icon = iconBase64
             )
 

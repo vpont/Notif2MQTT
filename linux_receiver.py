@@ -54,6 +54,7 @@ def on_message(client, userdata, msg):
         timestamp = data.get('timestamp', 0)
         importance = data.get('importance', 3)
         urgency = data.get('urgency', 'normal')
+        category = data.get('category', '')
         icon_base64 = data.get('icon', None)
 
         # Determine urgency icon
@@ -76,6 +77,7 @@ def on_message(client, userdata, msg):
 
         print(f"   {Colors.BOLD}Title:{Colors.ENDC} {title}")
         print(f"   {Colors.BOLD}Text:{Colors.ENDC} {text}")
+        print(f"   {Colors.BOLD}Category:{Colors.ENDC} {category}")
         print(f"   {Colors.BOLD}Time:{Colors.ENDC} {Colors.GREY}{formatted_time}{Colors.ENDC}")
         print(f"   {Colors.BOLD}Package:{Colors.ENDC} {package}")
         print(f"   {Colors.BOLD}Urgency:{Colors.ENDC} {urgency} (importance: {importance})")
