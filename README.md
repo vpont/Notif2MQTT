@@ -77,7 +77,8 @@ Notifications are sent in JSON format:
   "timestamp": 1703001234567,
   "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACA...",
   "importance": 4,
-  "urgency": "high"
+  "urgency": "high",
+  "category": "msg"
 }
 ```
 
@@ -87,6 +88,19 @@ Notifications are sent in JSON format:
 - **normal**: Standard messages (WhatsApp, Telegram)
 - **low**: Low importance notifications
 - **minimal**: Silent notifications
+
+### Notification Categories
+
+The `category` field contains the Android notification category (if available):
+
+- **msg**: Message notifications
+- **email**: Email notifications
+- **call**: Incoming call
+- **alarm**: Alarm or timer
+- **social**: Social network notifications
+- **promo**: Promotional notifications
+- **event**: Calendar events
+- **transport**: Travel/transportation updates
 
 ## Linux Integration
 
@@ -117,11 +131,39 @@ Use the included `linux_receiver.py` script:
 # Install dependency
 pip install paho-mqtt
 
+# Create default configuration
+./linux_receiver.py --init-config
+
+# Edit configuration
+nano ~/.config/notif2mqtt/config.ini
+
 # Run receiver
 ./linux_receiver.py
 ```
 
-The script will display Android notifications on your Linux desktop using `notify-send` with appropriate urgency levels.
+#### Configuration
+
+The script reads configuration from `~/.config/notif2mqtt/config.ini` (or `$XDG_CONFIG_HOME/notif2mqtt/config.ini`):
+
+```ini
+[mqtt]
+broker = 192.168.1.100
+port = 1883
+topic = notif2mqtt/notifications
+username =
+password =
+```
+
+#### Command Line Options
+
+```bash
+./linux_receiver.py                     # Normal mode
+./linux_receiver.py --daemon            # Daemon mode (no console output)
+./linux_receiver.py --config /path/to/config.ini  # Custom config file
+./linux_receiver.py --init-config       # Create default config file
+```
+
+The script will display Android notifications on your Linux desktop using libnotify with appropriate urgency levels and categories.
 
 ## Architecture
 
