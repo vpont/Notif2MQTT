@@ -29,7 +29,7 @@ mkdir -p "$BIN_DIR"
 
 # Copy python script
 echo "� Installing script to $BIN_DIR/$SCRIPT_NAME..."
-cp linux_receiver.py "$BIN_DIR/$SCRIPT_NAME"
+cp notif2mqtt.py "$BIN_DIR/$SCRIPT_NAME"
 chmod +x "$BIN_DIR/$SCRIPT_NAME"
 
 # Create systemd user directory if it doesn't exist

@@ -52,13 +52,13 @@ Notif2MQTT is a lightweight Android application that captures device notificatio
 
 ```bash
 # Initialize Linux receiver configuration
-python3 linux_receiver.py --init-config
+python3 notif2mqtt.py --init-config
 
 # Run Linux receiver in foreground (debug mode)
-python3 linux_receiver.py
+python3 notif2mqtt.py
 
 # Run as daemon (systemd mode)
-python3 linux_receiver.py --daemon
+python3 notif2mqtt.py --daemon
 
 # Install as systemd service
 sudo ./install.sh
@@ -110,7 +110,7 @@ MainActivity (UI layer for configuration)
 ```
 MQTT Broker
     ↓
-linux_receiver.py (subscribes to topic)
+notif2mqtt.py (subscribes to topic)
     ↓
 libnotify (native notification system)
     ↓
@@ -132,7 +132,7 @@ Desktop Notification
 3. **Modeling**: Create `NotificationData` object, calculate urgency level
 4. **Publishing**: Intent sent to `MqttService` with serialized notification
 5. **MQTT Transmission**: `MqttManager` publishes JSON to configured MQTT topic (QoS 1)
-6. **Linux Reception**: `linux_receiver.py` receives JSON, creates notification via libnotify
+6. **Linux Reception**: `notif2mqtt.py` receives JSON, creates notification via libnotify
 7. **Display**: Desktop shows notification with urgency level, app icon, title, text
 
 ## Data Model
@@ -210,7 +210,7 @@ Located in `AndroidManifest.xml`:
 - Integration tests for `MqttManager` connection/publishing
 - Instrumentation tests for `MainActivity` UI interactions
 - Mock tests for `NotificationListenerService` callbacks
-- Python tests for `linux_receiver.py` JSON parsing and systemd integration
+- Python tests for `notif2mqtt.py` JSON parsing and systemd integration
 
 ## Troubleshooting Development Issues
 
@@ -258,7 +258,7 @@ app/src/main/
 
 ## Linux Integration
 
-The Python component (`linux_receiver.py`) is a standalone daemon that:
+The Python component (`notif2mqtt.py`) is a standalone daemon that:
 1. Reads MQTT configuration from `~/.config/notif2mqtt/config.ini`
 2. Subscribes to the MQTT topic
 3. Parses JSON notification payloads

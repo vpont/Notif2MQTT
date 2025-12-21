@@ -119,7 +119,7 @@ sudo systemctl start mosquitto
 
 ### Linux Receiver
 
-The `linux_receiver.py` displays Android notifications on your Linux desktop using libnotify.
+The `notif2mqtt.py` displays Android notifications on your Linux desktop using libnotify.
 
 #### Configuration
 
@@ -137,7 +137,7 @@ password =
 #### Create the default configuration file:
 
 ```bash
-./linux_receiver.py --init-config
+./notif2mqtt.py --init-config
 ```
 
 #### Install as a systemd daemon
@@ -178,7 +178,7 @@ sudo ./uninstall.sh
                │
                ▼
 ┌─────────────────────────────────────┐
-│   Linux Receiver (linux_receiver.py)│
+│   Linux Receiver (notif2mqtt.py)    │
 │   - Displays notifications          │
 │   - Respects urgency levels         │
 └─────────────────────────────────────┘
