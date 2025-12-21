@@ -65,7 +65,7 @@ class MqttManager(private val context: Context) {
                 isCleanSession = true
                 connectionTimeout = TIMEOUT
                 keepAliveInterval = KEEP_ALIVE
-                isAutomaticReconnect = true
+                isAutomaticReconnect = false
 
                 // Configure SSL if using ssl:// protocol
                 if (broker.startsWith("ssl://")) {
@@ -128,7 +128,7 @@ class MqttManager(private val context: Context) {
                     isCleanSession = true
                     connectionTimeout = TIMEOUT
                     keepAliveInterval = KEEP_ALIVE
-                    isAutomaticReconnect = true
+                    isAutomaticReconnect = false
 
                     // Configure SSL if using ssl:// protocol
                     if (broker.startsWith("ssl://")) {

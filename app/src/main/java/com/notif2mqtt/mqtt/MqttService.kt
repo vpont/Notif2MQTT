@@ -111,17 +111,16 @@ class MqttService : Service() {
 
     private suspend fun connectWithRetry() {
         while (true) {
-                    if (mqttManager.connectionState.value != ConnectionState.CONNECTED) {
+            if (mqttManager.connectionState.value != ConnectionState.CONNECTED) {
                 val result = mqttManager.connectAsync()
                 if (result.isSuccess) {
                     updateNotification(getString(R.string.connected))
                 } else {
                     updateNotification(getString(R.string.disconnected))
-                    delay(30000) // Wait 30 seconds before retry
+                    delay(5000) // Wait 5 seconds before retry
                 }
-            } else {
-                delay(30000) // Check every 30 seconds if still connected
             }
+            delay(5000) // Check connection state every 5 seconds
         }
     }
 
