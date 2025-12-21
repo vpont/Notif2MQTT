@@ -58,9 +58,8 @@ class MqttService : Service() {
         }
 
         fun getConnectionState(context: Context): ConnectionState {
-            // This is a simplified approach - in a real app you might want to use a more robust method
-            // For now, we'll create a new instance to check state
-            return MqttManager(context).connectionState.value
+            // Return the shared connection state
+            return MqttManager.connectionState.value
         }
     }
 

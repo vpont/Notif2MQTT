@@ -22,14 +22,17 @@ class MqttManager(private val context: Context) {
     private val settings = SettingsManager(context)
     private var connectionCallback: ((Boolean, String?) -> Unit)? = null
 
-    // Connection state management
-    val connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
+    // Connection state management - now shared across all instances
+    val connectionState = Companion.connectionState
 
     companion object {
         private const val TAG = "MqttManager"
         private const val QOS = 1
         private const val TIMEOUT = 10
         private const val KEEP_ALIVE = 60
+
+        // Shared connection state across all MqttManager instances
+        val connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
     }
 
     private fun createSSLSocketFactory(): SSLSocketFactory {
