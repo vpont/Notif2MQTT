@@ -5,6 +5,12 @@ import android.util.Log
 import com.notif2mqtt.SettingsManager
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 class MqttManager(private val context: Context) {
     private var mqttClient: MqttClient? = null
@@ -16,6 +22,20 @@ class MqttManager(private val context: Context) {
         private const val QOS = 1
         private const val TIMEOUT = 10
         private const val KEEP_ALIVE = 60
+    }
+
+    private fun createSSLSocketFactory(): SSLSocketFactory {
+        // Create a trust manager that accepts all certificates (for self-signed certificates)
+        // TODO: Implement proper certificate validation when mqttAcceptSelfSignedCerts is false
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+            override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) {}
+        })
+
+        val sslContext = SSLContext.getInstance("TLS")
+        sslContext.init(null, trustAllCerts, SecureRandom())
+        return sslContext.socketFactory
     }
 
     fun connect(callback: (Boolean, String?) -> Unit) {
@@ -34,7 +54,12 @@ class MqttManager(private val context: Context) {
                 connectionTimeout = TIMEOUT
                 keepAliveInterval = KEEP_ALIVE
                 isAutomaticReconnect = true
-                
+
+                // Configure SSL if using ssl:// protocol
+                if (broker.startsWith("ssl://")) {
+                    socketFactory = createSSLSocketFactory()
+                }
+
                 // Set credentials if provided
                 val username = settings.mqttUsername
                 val password = settings.mqttPassword

@@ -5,7 +5,8 @@
     <!-- Main Activity -->
     <string name="mqtt_settings">MQTT Settings</string>
     <string name="broker_url">Broker URL</string>
-    <string name="broker_hint">tcp://192.168.1.100:1883</string>
+    <string name="broker_hint">tcp://192.168.1.100:1883 or ssl://broker.example.com:8883</string>
+    <string name="broker_help">Use tcp:// for unencrypted connections or ssl:// for encrypted TLS connections</string>
     <string name="topic">Topic</string>
     <string name="topic_hint">notif2mqtt/notifications</string>
     <string name="username">Username (optional)</string>
@@ -25,6 +26,7 @@
     <string name="status">Status</string>
     <string name="mqtt_connected">MQTT Connected</string>
     <string name="mqtt_disconnected">MQTT Disconnected</string>
+    <string name="mqtt_connected_tls">MQTT Connected (TLS)</string>
     <string name="service_running">Service Running</string>
     <string name="service_stopped">Service Stopped</string>
     

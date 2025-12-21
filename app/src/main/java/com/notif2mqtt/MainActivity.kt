@@ -75,6 +75,12 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Validate broker URL format
+        if (!isValidBrokerUrl(broker)) {
+            Toast.makeText(this, "Invalid broker URL. Use tcp://host:port or ssl://host:port", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         settings.mqttBroker = broker
         settings.mqttTopic = topic
         settings.mqttUsername = username
@@ -87,6 +93,34 @@ class MainActivity : AppCompatActivity() {
         MqttService.startService(this)
     }
 
+    private fun isValidBrokerUrl(url: String): Boolean {
+        return try {
+            val uri = java.net.URI(url)
+            val scheme = uri.scheme?.lowercase()
+            val host = uri.host
+            val port = uri.port
+
+            // Check scheme
+            if (scheme != "tcp" && scheme != "ssl") {
+                return false
+            }
+
+            // Check host
+            if (host.isNullOrEmpty()) {
+                return false
+            }
+
+            // Check port (optional, but if specified should be valid)
+            if (port != -1 && (port < 1 || port > 65535)) {
+                return false
+            }
+
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun updatePermissionStatus() {
         val hasPermission = NotificationManagerCompat.getEnabledListenerPackages(this)
             .contains(packageName)
@@ -97,7 +131,14 @@ class MainActivity : AppCompatActivity() {
         if (hasPermission) {
             statusText.text = getString(R.string.permission_granted)
             statusText.setTextColor(getColor(android.R.color.holo_green_dark))
-            statusDisplay.text = getString(R.string.service_running)
+
+            // Show TLS status if using SSL
+            val isTlsConnection = settings.mqttBroker.startsWith("ssl://")
+            statusDisplay.text = if (isTlsConnection) {
+                getString(R.string.mqtt_connected_tls)
+            } else {
+                getString(R.string.service_running)
+            }
         } else {
             statusText.text = getString(R.string.permission_not_granted)
             statusText.setTextColor(getColor(android.R.color.holo_red_dark))

@@ -28,12 +28,13 @@ class SettingsManager(context: Context) {
         private const val KEY_MQTT_USERNAME = "mqtt_username"
         private const val KEY_MQTT_PASSWORD = "mqtt_password"
         private const val KEY_MQTT_CLIENT_ID = "mqtt_client_id"
+        private const val KEY_MQTT_ACCEPT_SELF_SIGNED_CERTS = "mqtt_accept_self_signed_certs"
         
         // App Settings
         private const val KEY_EXCLUDED_APPS = "excluded_apps"
         private const val KEY_SERVICE_ENABLED = "service_enabled"
         
-        // Defaults
+        // Defaults (supports both tcp:// and ssl:// protocols)
         const val DEFAULT_BROKER = "tcp://192.168.1.100:1883"
         const val DEFAULT_TOPIC = "notif2mqtt/notifications"
     }
@@ -58,6 +59,10 @@ class SettingsManager(context: Context) {
     var mqttClientId: String
         get() = prefs.getString(KEY_MQTT_CLIENT_ID, generateClientId()) ?: generateClientId()
         set(value) = prefs.edit().putString(KEY_MQTT_CLIENT_ID, value).apply()
+
+    var mqttAcceptSelfSignedCerts: Boolean
+        get() = prefs.getBoolean(KEY_MQTT_ACCEPT_SELF_SIGNED_CERTS, true) // Default to true for compatibility
+        set(value) = prefs.edit().putBoolean(KEY_MQTT_ACCEPT_SELF_SIGNED_CERTS, value).apply()
 
     var serviceEnabled: Boolean
         get() = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
