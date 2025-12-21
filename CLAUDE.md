@@ -97,7 +97,7 @@ MainActivity (UI layer for configuration)
 
 - **MqttManager** (`app/src/main/java/com/notif2mqtt/mqtt/MqttManager.kt`): Lightweight wrapper around Eclipse Paho MQTT client. Handles connection setup, authentication, and message publishing with QoS 1 (at-least-once delivery).
 
-- **SettingsManager** (`app/src/main/java/com/notif2mqtt/SettingsManager.kt`): Centralized configuration using SharedPreferences. Manages MQTT broker settings, topic, credentials, app exclusion list, and service state.
+- **SettingsManager** (`app/src/main/java/com/notif2mqtt/SettingsManager.kt`): Centralized configuration using EncryptedSharedPreferences with AES256-GCM encryption. Manages MQTT broker settings, topic, credentials, app exclusion list, and service state with secure encryption.
 
 - **MainActivity** (`app/src/main/java/com/notif2mqtt/MainActivity.kt`): Configuration UI. RecyclerView for app exclusion list, TextInputLayout fields for MQTT settings, permission status display. Updates MqttService when settings change.
 
@@ -163,13 +163,14 @@ Notifications are transmitted as JSON:
 - **App Module**: `app/build.gradle.kts` - Dependencies, build types, product flavors
 - **Namespace**: `com.notif2mqtt`
 - **Target SDK**: 34 (Android 14), **Min SDK**: 24 (Android 7.0)
-- **Kotlin Version**: 1.9.24, **JVM Target**: 1.8
+- **Kotlin Version**: 2.2.21, **JVM Target**: 17
 
 **Key Dependencies**:
 - `org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5` - MQTT client
 - `androidx.appcompat:appcompat` - Core AndroidX libraries
 - `com.google.android.material:material` - Material Design 3
 - `androidx.recyclerview:recyclerview` - List UI component
+- `androidx.security:security-crypto:1.1.0-alpha06` - Encrypted preferences for sensitive credentials
 
 **Optimization**:
 - R8/ProGuard minification enabled for release builds
@@ -192,7 +193,7 @@ Located in `AndroidManifest.xml`:
 
 2. **MQTT QoS 1**: Ensures at-least-once message delivery. May result in duplicate notifications if reconnection occurs, but guarantees no lost messages.
 
-3. **SharedPreferences**: Simple key-value storage for settings. Not encrypted by default—credentials stored in plain text. For sensitive deployments, consider using EncryptedSharedPreferences.
+3. **EncryptedSharedPreferences**: Credentials and settings encrypted using AES256-GCM via AndroidX Security Crypto library. MasterKey uses AES256-GCM key scheme with SIV key encryption and GCM value encryption for maximum security.
 
 4. **Base64 Icons**: Notification icons encoded as Base64 strings in JSON payload to self-contain notification data within MQTT message. Icons resized to 128x128 for performance.
 
