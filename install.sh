@@ -13,8 +13,8 @@ echo "🚀 Installing Notif2MQTT Daemon..."
 # Install dependencies
 echo "📦 Installing Python dependencies..."
 if command -v pacman &> /dev/null; then
-    echo "   Detected pacman. Installing python-paho-mqtt..."
-    sudo pacman -S --needed python-paho-mqtt
+    echo "   Detected pacman. Installing python-paho-mqtt and python-gobject..."
+    sudo pacman -S --needed python-paho-mqtt python-gobject
 elif [ -f "requirements.txt" ]; then
     echo "   Installing via pip..."
     if command -v pip3 &> /dev/null; then

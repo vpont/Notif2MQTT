@@ -6,13 +6,16 @@ Requires: pip install paho-mqtt
 
 import paho.mqtt.client as mqtt
 import json
-import subprocess
 import sys
 import base64
 import os
 import tempfile
 from datetime import datetime
 import argparse
+import gi
+
+gi.require_version('Notify', '0.7')
+from gi.repository import Notify, GdkPixbuf
 
 # Global configuration
 VERBOSE = True
@@ -87,54 +90,55 @@ def on_message(client, userdata, msg):
             print(f"   {Colors.BOLD}Package:{Colors.ENDC} {package}")
             print(f"   {Colors.BOLD}Urgency:{Colors.ENDC} {urgency} (importance: {importance})")
 
-        # Determine urgency for notify-send
-        notify_urgency = 'normal'
-        if urgency == 'high':
-            notify_urgency = 'critical'
-        elif urgency == 'low' or urgency == 'minimal':
-            notify_urgency = 'low'
-
-        # Show notification on Linux using notify-send
+        # Show notification on Linux using libnotify
         notification_title = f"{app}: {title}"
+        
+        try:
+            # Create notification
+            notification = Notify.Notification.new(notification_title, text, None)
+            
+            # Set urgency
+            if urgency == 'high':
+                notification.set_urgency(Notify.Urgency.CRITICAL)
+            elif urgency == 'low' or urgency == 'minimal':
+                notification.set_urgency(Notify.Urgency.LOW)
+            else:
+                notification.set_urgency(Notify.Urgency.NORMAL)
 
-        # Prepare notify-send arguments
-        notify_args = [
-            'notify-send',
-            notification_title,
-            text,
-            '-t', '5000',  # Duration in ms
-            '-u', notify_urgency  # Urgency: low, normal, critical
-        ]
+            # Process icon if available
+            icon_path = None
+            if icon_base64:
+                try:
+                    # Decode Base64
+                    icon_data = base64.b64decode(icon_base64)
 
-        # Process icon if available
-        icon_path = None
-        if icon_base64:
-            try:
-                # Decode Base64
-                icon_data = base64.b64decode(icon_base64)
+                    # Create temp file
+                    fd, icon_path = tempfile.mkstemp(suffix='.png')
+                    with os.fdopen(fd, 'wb') as f:
+                        f.write(icon_data)
 
-                # Create temp file
-                fd, icon_path = tempfile.mkstemp(suffix='.png')
-                with os.fdopen(fd, 'wb') as f:
-                    f.write(icon_data)
+                    # Load icon into pixbuf and set it
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file(icon_path)
+                    notification.set_image_from_pixbuf(pixbuf)
+                    
+                    if VERBOSE:
+                        print(f"   Icon: Processed (saved to {icon_path})")
+                except Exception as e:
+                    if VERBOSE:
+                        print(f"   Icon: Error processing ({e})")
 
-                # Add icon to arguments
-                notify_args.extend(['-i', icon_path])
-                if VERBOSE:
-                    print(f"   Icon: Processed (saved to {icon_path})")
-            except Exception as e:
-                if VERBOSE:
-                    print(f"   Icon: Error processing ({e})")
+            # Show notification
+            notification.show()
 
-        # Execute notify-send
-        subprocess.run(notify_args, check=False)
+            # Cleanup temp file
+            if icon_path and os.path.exists(icon_path):
+                try:
+                    os.remove(icon_path)
+                except:
+                    pass
 
-        # Cleanup temp file
-        if icon_path and os.path.exists(icon_path):
-            try:
-                os.remove(icon_path)
-            except:
-                pass
+        except Exception as e:
+            print(f"{Colors.FAIL}✗ Error showing notification: {e}{Colors.ENDC}")
 
     except json.JSONDecodeError:
         print(f"{Colors.FAIL}✗ Error: Message is not valid JSON: {msg.payload}{Colors.ENDC}")
@@ -155,6 +159,11 @@ def main():
 
     if args.daemon:
         VERBOSE = False
+
+    # Initialize libnotify
+    if not Notify.init("Notif2MQTT"):
+        print(f"{Colors.FAIL}✗ Error: Failed to initialize libnotify{Colors.ENDC}")
+        sys.exit(1)
 
     print(f"{Colors.HEADER}🚀 Starting Android → Linux notification receiver{Colors.ENDC}")
     print(f"   Broker: {MQTT_BROKER}:{MQTT_PORT}")
