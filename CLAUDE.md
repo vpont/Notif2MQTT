@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Notif2MQTT is a lightweight Android application that captures device notifications and relays them to an MQTT broker. It also includes a Linux Python daemon that receives and displays these notifications on desktop. The project bridges Android and Linux ecosystems using MQTT as the transport layer.
 
-**Tech Stack**: Kotlin (Android), Python 3 (Linux integration), Eclipse Paho MQTT, Material Design 3
+**Tech Stack**: Kotlin (Android), Python 3 (Linux integration), Eclipse Paho MQTT with TLS/SSL support, Material Design 3
 
 ## Common Commands
 
@@ -95,7 +95,7 @@ MainActivity (UI layer for configuration)
 
 - **MqttService** (`app/src/main/java/com/notif2mqtt/mqtt/MqttService.kt`): Foreground service that maintains MQTT broker connection. Publishes notification data as JSON payloads. Auto-reconnects on failure. Must be foreground to prevent Android from terminating it.
 
-- **MqttManager** (`app/src/main/java/com/notif2mqtt/mqtt/MqttManager.kt`): Lightweight wrapper around Eclipse Paho MQTT client. Handles connection setup, authentication, and message publishing with QoS 1 (at-least-once delivery).
+- **MqttManager** (`app/src/main/java/com/notif2mqtt/mqtt/MqttManager.kt`): Lightweight wrapper around Eclipse Paho MQTT client. Handles connection setup, authentication, SSL/TLS configuration, and message publishing with QoS 1 (at-least-once delivery). Supports both unencrypted TCP and encrypted SSL connections.
 
 - **SettingsManager** (`app/src/main/java/com/notif2mqtt/SettingsManager.kt`): Centralized configuration using EncryptedSharedPreferences with AES256-GCM encryption. Manages MQTT broker settings, topic, credentials, app exclusion list, and service state with secure encryption.
 
@@ -163,6 +163,7 @@ Notifications are transmitted as JSON:
 - **App Module**: `app/build.gradle.kts` - Dependencies, build types, product flavors
 - **Namespace**: `com.notif2mqtt`
 - **Target SDK**: 34 (Android 14), **Min SDK**: 24 (Android 7.0)
+- **Android Gradle Plugin**: 8.5.2
 - **Kotlin Version**: 2.2.21, **JVM Target**: 17
 
 **Key Dependencies**:
@@ -193,13 +194,15 @@ Located in `AndroidManifest.xml`:
 
 2. **MQTT QoS 1**: Ensures at-least-once message delivery. May result in duplicate notifications if reconnection occurs, but guarantees no lost messages.
 
-3. **EncryptedSharedPreferences**: Credentials and settings encrypted using AES256-GCM via AndroidX Security Crypto library. MasterKey uses AES256-GCM key scheme with SIV key encryption and GCM value encryption for maximum security.
+3. **SSL/TLS Support**: MQTT connections support both unencrypted TCP (`tcp://`) and encrypted SSL (`ssl://`) protocols. SSL connections use trust-all certificates by default to accommodate self-signed certificates common in MQTT deployments.
 
-4. **Base64 Icons**: Notification icons encoded as Base64 strings in JSON payload to self-contain notification data within MQTT message. Icons resized to 128x128 for performance.
+4. **EncryptedSharedPreferences**: Credentials and settings encrypted using AES256-GCM via AndroidX Security Crypto library. MasterKey uses AES256-GCM key scheme with SIV key encryption and GCM value encryption for maximum security.
 
-5. **App Exclusion List**: Stored as pipe-separated package names in SharedPreferences. Checked before processing each notification.
+5. **Base64 Icons**: Notification icons encoded as Base64 strings in JSON payload to self-contain notification data within MQTT message. Icons resized to 128x128 for performance.
 
-6. **XDG Compliance**: Linux receiver uses `$XDG_CONFIG_HOME` (or `~/.config`) for configuration, following Linux standards.
+6. **App Exclusion List**: Stored as pipe-separated package names in SharedPreferences. Checked before processing each notification.
+
+7. **XDG Compliance**: Linux receiver uses `$XDG_CONFIG_HOME` (or `~/.config`) for configuration, following Linux standards.
 
 ## Testing
 
@@ -221,7 +224,8 @@ Located in `AndroidManifest.xml`:
 - Ensure `onNotificationPosted()` callback is not throwing exceptions
 
 ### "MQTT connection fails"
-- Verify broker URL includes protocol (`tcp://` not just IP:port)
+- Verify broker URL includes protocol (`tcp://` for unencrypted or `ssl://` for encrypted connections)
+- For SSL connections, ensure the broker uses a valid certificate or self-signed certificates are accepted
 - Check network connectivity and firewall rules
 - Ensure credentials are correct if broker requires authentication
 - Verify `MqttManager` QoS and timeout settings
@@ -256,6 +260,13 @@ app/src/main/
     ├── values/strings.xml         # UI strings
     └── drawable/                  # App icons
 ```
+
+## Recent Updates
+
+**Latest Changes**:
+- **TLS/SSL Support**: Added secure MQTT connections with `ssl://` protocol support and self-signed certificate handling
+- **Build System Updates**: Updated Android Gradle Plugin to 8.5.2 for Gradle 10 compatibility
+- **Enhanced UI**: Added TLS connection status indicators and improved broker URL validation
 
 ## Linux Integration
 
