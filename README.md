@@ -121,7 +121,7 @@ sudo systemctl start mosquitto
 
 ### Linux Receiver
 
-The `notif2mqtt.py` displays Android notifications on your Linux desktop using libnotify.
+The `notif2mqtt.py` displays Android notifications on your Linux desktop using libnotify. Supports both unencrypted and SSL/TLS encrypted MQTT connections.
 
 #### Configuration
 
@@ -131,6 +131,7 @@ It reads configuration from `~/.config/notif2mqtt/config.ini` (or `$XDG_CONFIG_H
 [mqtt]
 broker = 192.168.1.100
 port = 1883
+ssl = false  # Set to true for encrypted connections (port 8883)
 topic = notif2mqtt/notifications
 username =
 password =

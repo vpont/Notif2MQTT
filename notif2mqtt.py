@@ -26,6 +26,7 @@ VERBOSE = True
 config = {
     "broker": "localhost",
     "port": 1883,
+    "ssl": False,
     "topic": "notif2mqtt/notifications",
     "username": "",
     "password": "",
@@ -72,6 +73,7 @@ def load_config(config_file: Path = None):
                 mqtt_section = parser["mqtt"]
                 config["broker"] = mqtt_section.get("broker", config["broker"])
                 config["port"] = mqtt_section.getint("port", config["port"])
+                config["ssl"] = mqtt_section.getboolean("ssl", config["ssl"])
                 config["topic"] = mqtt_section.get("topic", config["topic"])
                 config["username"] = mqtt_section.get("username", config["username"])
                 config["password"] = mqtt_section.get("password", config["password"])
@@ -100,6 +102,7 @@ def create_default_config(config_file: Path = None):
     parser["mqtt"] = {
         "broker": config["broker"],
         "port": str(config["port"]),
+        "ssl": str(config["ssl"]).lower(),
         "topic": config["topic"],
         "username": config["username"],
         "password": config["password"],
@@ -275,6 +278,10 @@ def main():
         f"{Colors.HEADER}🚀 Starting Android → Linux notification receiver{Colors.ENDC}"
     )
     print(f"   Broker: {config['broker']}:{config['port']}")
+    if config["ssl"]:
+        print("   Security: SSL/TLS enabled")
+    else:
+        print("   Security: Unencrypted connection")
     print(f"   Topic: {config['topic']}")
     if args.daemon:
         print("   Mode: Daemon (Silent notifications)")
@@ -291,6 +298,14 @@ def main():
     # Configure credentials if provided
     if config["username"] and config["password"]:
         client.username_pw_set(config["username"], config["password"])
+
+    # Configure SSL if enabled
+    if config["ssl"]:
+        import ssl
+
+        client.tls_set(tls_version=ssl.PROTOCOL_TLS)
+        if VERBOSE:
+            print(f"{Colors.BLUE}🔒 SSL/TLS enabled for secure connection{Colors.ENDC}")
 
     try:
         # Connect to broker

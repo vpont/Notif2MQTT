@@ -120,6 +120,7 @@ Desktop Notification
 **Key Features**:
 
 - XDG Base Directory compliant configuration (`~/.config/notif2mqtt/config.ini`)
+- SSL/TLS support for secure MQTT connections
 - Parses MQTT JSON payloads, decodes Base64 icons
 - Maps importance levels to notification urgency
 - Systemd integration with auto-restart policy
