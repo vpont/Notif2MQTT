@@ -15,7 +15,7 @@ import argparse
 import gi
 
 gi.require_version('Notify', '0.7')
-from gi.repository import Notify, GdkPixbuf
+from gi.repository import Notify, GdkPixbuf, GLib
 
 # Global configuration
 VERBOSE = True
@@ -104,6 +104,10 @@ def on_message(client, userdata, msg):
                 notification.set_urgency(Notify.Urgency.LOW)
             else:
                 notification.set_urgency(Notify.Urgency.NORMAL)
+
+            # Set category if available
+            if category:
+                notification.set_hint('category', GLib.Variant.new_string(category))
 
             # Process icon if available
             icon_path = None
