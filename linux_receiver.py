@@ -199,10 +199,12 @@ def main():
     except KeyboardInterrupt:
         print(f"\n\n{Colors.WARNING}👋 Stopping receiver...{Colors.ENDC}")
         client.disconnect()
+        Notify.uninit()
         sys.exit(0)
 
     except Exception as e:
         print(f"\n{Colors.FAIL}✗ Error: {e}{Colors.ENDC}")
+        Notify.uninit()
         sys.exit(1)
 
 if __name__ == "__main__":
