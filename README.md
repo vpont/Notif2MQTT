@@ -113,37 +113,17 @@ sudo systemctl start mosquitto
 sudo systemctl enable mosquitto
 
 # Ubuntu/Debian
-sudo apt install mosquitto mosquitto-clients
+sudo apt install mosquitto
 sudo systemctl start mosquitto
 ```
 
-### Subscribe to Notifications
+### Linux Receiver
 
-```bash
-mosquitto_sub -h localhost -t "notif2mqtt/notifications" -v
-```
-
-### Python Script to Display Notifications
-
-Use the included `linux_receiver.py` script:
-
-```bash
-# Install dependency
-pip install paho-mqtt
-
-# Create default configuration
-./linux_receiver.py --init-config
-
-# Edit configuration
-nano ~/.config/notif2mqtt/config.ini
-
-# Run receiver
-./linux_receiver.py
-```
+The `linux_receiver.py` displays Android notifications on your Linux desktop using libnotify.
 
 #### Configuration
 
-The script reads configuration from `~/.config/notif2mqtt/config.ini` (or `$XDG_CONFIG_HOME/notif2mqtt/config.ini`):
+It reads configuration from `~/.config/notif2mqtt/config.ini` (or `$XDG_CONFIG_HOME/notif2mqtt/config.ini`):
 
 ```ini
 [mqtt]
@@ -154,16 +134,23 @@ username =
 password =
 ```
 
-#### Command Line Options
+#### Create the default configuration file:
 
 ```bash
-./linux_receiver.py                     # Normal mode
-./linux_receiver.py --daemon            # Daemon mode (no console output)
-./linux_receiver.py --config /path/to/config.ini  # Custom config file
-./linux_receiver.py --init-config       # Create default config file
+./linux_receiver.py --init-config
 ```
 
-The script will display Android notifications on your Linux desktop using libnotify with appropriate urgency levels and categories.
+#### Install as a systemd daemon
+
+```bash
+sudo ./install.sh
+```
+
+#### Uninstall Daemon
+
+```bash
+sudo ./uninstall.sh
+```
 
 ## Architecture
 
@@ -205,7 +192,7 @@ The script will display Android notifications on your Linux desktop using libnot
 - Restart the application
 - Check Settings > Apps > Notif2MQTT for active permissions
 
-### Can't connect to MQTT broker
+### App can't connect to MQTT broker
 
 - Verify broker URL is correct (must include `tcp://`)
 - Ensure Android device is on the same network as the broker
@@ -227,10 +214,6 @@ The script will display Android notifications on your Linux desktop using libnot
 - Eclipse Paho MQTT Client (1.2.5)
 - AndroidX Core, AppCompat, Material Design
 - RecyclerView
-
-## License
-
-MIT License
 
 ## Contributing
 
