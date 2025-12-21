@@ -1,39 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Notif2MQTT</string>
-    
+
     <!-- Main Activity -->
     <string name="mqtt_settings">MQTT Settings</string>
     <string name="broker_url">Broker URL</string>
-    <string name="broker_hint">tcp://192.168.1.100:1883 or ssl://broker.example.com:8883</string>
+    <string name="broker_hint">tcp://192.168.1.100:1883 or ssl://192.168.1.100:8883</string>
     <string name="broker_help">Use tcp:// for unencrypted connections or ssl:// for encrypted TLS connections</string>
     <string name="topic">Topic</string>
     <string name="topic_hint">notif2mqtt/notifications</string>
     <string name="username">Username (optional)</string>
     <string name="password">Password (optional)</string>
     <string name="save_settings">Save Settings</string>
-    
     <string name="app_exclusions">App Exclusions</string>
     <string name="exclude_apps_hint">Select apps to exclude from notifications</string>
-    
+    <string name="settings_saved">Settings saved successfully</string>
+    <string name="enable_notification_access">Please enable notification access in Settings</string>
+
+    <!-- Permissions Status -->
     <string name="permissions">Permissions</string>
     <string name="notification_access">Notification Access</string>
     <string name="notification_access_desc">Required to capture notifications</string>
     <string name="open_settings">Open Settings</string>
     <string name="permission_granted">Granted</string>
     <string name="permission_not_granted">Not Granted</string>
-    
-    <string name="status">Status</string>
-    <string name="mqtt_connected">MQTT Connected</string>
-    <string name="mqtt_disconnected">MQTT Disconnected</string>
-    <string name="mqtt_connected_tls">MQTT Connected (TLS)</string>
-    <string name="service_running">Service Running</string>
-    <string name="service_stopped">Service Stopped</string>
-    
-    <string name="settings_saved">Settings saved successfully</string>
-    <string name="enable_notification_access">Please enable notification access in Settings</string>
 
     <!-- Connection Status -->
+    <string name="status">Status</string>
     <string name="connecting">Connecting…</string>
     <string name="connected">Connected</string>
     <string name="connected_tls">Connected (TLS)</string>

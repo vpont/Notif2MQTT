@@ -137,24 +137,14 @@ class MainActivity : AppCompatActivity() {
         val hasPermission = NotificationManagerCompat.getEnabledListenerPackages(this)
             .contains(packageName)
 
-        val statusText = findViewById<TextView>(R.id.permissionStatus)
-        val statusDisplay = findViewById<TextView>(R.id.statusText)
+        val permissionStatusText = findViewById<TextView>(R.id.permissionStatusText)
 
         if (hasPermission) {
-            statusText.text = getString(R.string.permission_granted)
-            statusText.setTextColor(getColor(android.R.color.holo_green_dark))
-
-            // Show TLS status if using SSL
-            val isTlsConnection = settings.mqttBroker.startsWith("ssl://")
-            statusDisplay.text = if (isTlsConnection) {
-                getString(R.string.mqtt_connected_tls)
-            } else {
-                getString(R.string.service_running)
-            }
+            permissionStatusText.text = getString(R.string.permission_granted)
+            permissionStatusText.setTextColor(getColor(android.R.color.holo_green_dark))
         } else {
-            statusText.text = getString(R.string.permission_not_granted)
-            statusText.setTextColor(getColor(android.R.color.holo_red_dark))
-            statusDisplay.text = getString(R.string.service_stopped)
+            permissionStatusText.text = getString(R.string.permission_not_granted)
+            permissionStatusText.setTextColor(getColor(android.R.color.holo_red_dark))
         }
     }
 

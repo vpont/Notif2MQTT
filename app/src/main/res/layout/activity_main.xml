@@ -51,7 +51,7 @@
                     android:id="@+id/statusText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/mqtt_disconnected"
+                    android:text="@string/disconnected"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -224,7 +224,7 @@
                             android:textStyle="bold"/>
 
                         <TextView
-                            android:id="@+id/permissionStatus"
+                            android:id="@+id/permissionStatusText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/permission_not_granted"
