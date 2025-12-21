@@ -41,7 +41,7 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 In the app, configure:
 
 - **Broker URL**: `tcp://IP:PORT` (e.g., `tcp://192.168.1.100:1883`)
-- **Topic**: MQTT topic for notifications (e.g., `android/notifications`)
+- **Topic**: MQTT topic for notifications (e.g., `notif2mqtt/notifications`)
 - **Username/Password**: (Optional) Broker credentials
 
 ### 2. Grant Permissions
@@ -106,7 +106,7 @@ sudo systemctl start mosquitto
 ### Subscribe to Notifications
 
 ```bash
-mosquitto_sub -h localhost -t "android/notifications" -v
+mosquitto_sub -h localhost -t "notif2mqtt/notifications" -v
 ```
 
 ### Python Script to Display Notifications

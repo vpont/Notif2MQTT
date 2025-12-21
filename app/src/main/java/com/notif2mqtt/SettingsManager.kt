@@ -23,7 +23,7 @@ class SettingsManager(context: Context) {
         
         // Defaults
         const val DEFAULT_BROKER = "tcp://192.168.1.100:1883"
-        const val DEFAULT_TOPIC = "android/notifications"
+        const val DEFAULT_TOPIC = "notif2mqtt/notifications"
     }
 
     // MQTT Configuration

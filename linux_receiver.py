@@ -16,7 +16,7 @@ from datetime import datetime
 # Configuration
 MQTT_BROKER = "192.168.1.111"
 MQTT_PORT = 1883
-MQTT_TOPIC = "android/notifications"
+MQTT_TOPIC = "notif2mqtt/notifications"
 MQTT_USERNAME = ""  # Leave empty if not required
 MQTT_PASSWORD = ""  # Leave empty if not required
 
@@ -89,6 +89,7 @@ def on_message(client, userdata, msg):
 
         # Show notification on Linux using notify-send
         notification_title = f"{app}: {title}"
+
         # Prepare notify-send arguments
         notify_args = [
             'notify-send',
