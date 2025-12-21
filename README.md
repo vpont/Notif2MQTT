@@ -42,7 +42,7 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 In the app, configure:
 
 - **Broker URL**: `tcp://IP:PORT` for unencrypted or `ssl://IP:PORT` for encrypted connections
-  - Examples: `tcp://192.168.1.100:1883` (unencrypted) or `ssl://broker.example.com:8883` (encrypted)
+  - Examples: `tcp://192.168.1.100:1883` (unencrypted) or `ssl://192.168.1.100:8883` (encrypted)
 - **Topic**: MQTT topic for notifications (e.g., `notif2mqtt/notifications`)
 - **Username/Password**: (Optional) Broker credentials
 
