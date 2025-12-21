@@ -155,15 +155,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadInstalledApps() {
         val packageManager = packageManager
-        val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-            .map { appInfo ->
+
+        // Get all installed applications (including system apps)
+        val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+
+        val apps = installedApps.mapNotNull { appInfo ->
+            try {
                 AppInfo(
                     packageName = appInfo.packageName,
                     name = packageManager.getApplicationLabel(appInfo).toString(),
                     icon = packageManager.getApplicationIcon(appInfo)
                 )
+            } catch (e: PackageManager.NameNotFoundException) {
+                null // Skip if app info not found
+            } catch (e: Exception) {
+                null // Skip any other issues
             }
-            .sortedBy { it.name }
+        }.sortedBy { it.name }
 
         appsAdapter.updateApps(apps)
     }
