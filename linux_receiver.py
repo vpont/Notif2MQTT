@@ -20,13 +20,26 @@ MQTT_TOPIC = "android/notifications"
 MQTT_USERNAME = ""  # Leave empty if not required
 MQTT_PASSWORD = ""  # Leave empty if not required
 
+# Colors
+class Colors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    GREY = '\033[90m'
+
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print(f"✓ Connected to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
+        print(f"{Colors.GREEN}✓ Connected to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}{Colors.ENDC}")
         client.subscribe(MQTT_TOPIC)
-        print(f"✓ Subscribed to topic: {MQTT_TOPIC}")
+        print(f"{Colors.GREEN}✓ Subscribed to topic: {MQTT_TOPIC}{Colors.ENDC}")
     else:
-        print(f"✗ Connection error. Code: {rc}")
+        print(f"{Colors.FAIL}✗ Connection error. Code: {rc}{Colors.ENDC}")
         sys.exit(1)
 
 def on_message(client, userdata, msg):
@@ -52,7 +65,7 @@ def on_message(client, userdata, msg):
         }.get(urgency, '🟢')
 
         # Console log
-        print(f"\n{urgency_icon} New notification from {app} [{urgency.upper()}]")
+        print(f"\n{urgency_icon} {Colors.BOLD}New notification from {Colors.CYAN}{app}{Colors.ENDC} [{urgency.upper()}]")
         
         # Format timestamp
         try:
@@ -61,11 +74,11 @@ def on_message(client, userdata, msg):
         except:
             formatted_time = "Unknown"
 
-        print(f"   Title: {title}")
-        print(f"   Text: {text}")
-        print(f"   Time: {formatted_time}")
-        print(f"   Package: {package}")
-        print(f"   Urgency: {urgency} (importance: {importance})")
+        print(f"   {Colors.BOLD}Title:{Colors.ENDC} {title}")
+        print(f"   {Colors.BOLD}Text:{Colors.ENDC} {text}")
+        print(f"   {Colors.BOLD}Time:{Colors.ENDC} {Colors.GREY}{formatted_time}{Colors.ENDC}")
+        print(f"   {Colors.BOLD}Package:{Colors.ENDC} {package}")
+        print(f"   {Colors.BOLD}Urgency:{Colors.ENDC} {urgency} (importance: {importance})")
 
         # Determine urgency for notify-send
         notify_urgency = 'normal'
@@ -114,16 +127,16 @@ def on_message(client, userdata, msg):
                 pass
 
     except json.JSONDecodeError:
-        print(f"✗ Error: Message is not valid JSON: {msg.payload}")
+        print(f"{Colors.FAIL}✗ Error: Message is not valid JSON: {msg.payload}{Colors.ENDC}")
     except Exception as e:
-        print(f"✗ Error processing message: {e}")
+        print(f"{Colors.FAIL}✗ Error processing message: {e}{Colors.ENDC}")
 
 def on_disconnect(client, userdata, rc):
     if rc != 0:
-        print(f"⚠ Disconnected unexpectedly. Code: {rc}")
+        print(f"{Colors.WARNING}⚠ Disconnected unexpectedly. Code: {rc}{Colors.ENDC}")
 
 def main():
-    print("🚀 Starting Android → Linux notification receiver")
+    print(f"{Colors.HEADER}🚀 Starting Android → Linux notification receiver{Colors.ENDC}")
     print(f"   Broker: {MQTT_BROKER}:{MQTT_PORT}")
     print(f"   Topic: {MQTT_TOPIC}")
     print()
@@ -145,16 +158,16 @@ def main():
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
 
         # Start loop
-        print("⏳ Waiting for notifications... (Ctrl+C to exit)\n")
+        print(f"{Colors.BLUE}⏳ Waiting for notifications... (Ctrl+C to exit){Colors.ENDC}\n")
         client.loop_forever()
 
     except KeyboardInterrupt:
-        print("\n\n👋 Stopping receiver...")
+        print(f"\n\n{Colors.WARNING}👋 Stopping receiver...{Colors.ENDC}")
         client.disconnect()
         sys.exit(0)
 
     except Exception as e:
-        print(f"\n✗ Error: {e}")
+        print(f"\n{Colors.FAIL}✗ Error: {e}{Colors.ENDC}")
         sys.exit(1)
 
 if __name__ == "__main__":
