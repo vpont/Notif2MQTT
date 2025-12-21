@@ -11,6 +11,7 @@ import sys
 import base64
 import os
 import tempfile
+from datetime import datetime
 
 # Configuration
 MQTT_BROKER = "192.168.1.111"
@@ -39,7 +40,6 @@ def on_message(client, userdata, msg):
         text = data.get('text', '')
         timestamp = data.get('timestamp', 0)
         importance = data.get('importance', 3)
-        importance = data.get('importance', 3)
         urgency = data.get('urgency', 'normal')
         icon_base64 = data.get('icon', None)
 
@@ -53,8 +53,17 @@ def on_message(client, userdata, msg):
 
         # Console log
         print(f"\n{urgency_icon} New notification from {app} [{urgency.upper()}]")
+        
+        # Format timestamp
+        try:
+            dt_object = datetime.fromtimestamp(timestamp / 1000.0)
+            formatted_time = dt_object.strftime('%Y-%m-%d %H:%M:%S')
+        except:
+            formatted_time = "Unknown"
+
         print(f"   Title: {title}")
         print(f"   Text: {text}")
+        print(f"   Time: {formatted_time}")
         print(f"   Package: {package}")
         print(f"   Urgency: {urgency} (importance: {importance})")
 
