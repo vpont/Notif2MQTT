@@ -12,6 +12,10 @@ import base64
 import os
 import tempfile
 from datetime import datetime
+import argparse
+
+# Global configuration
+VERBOSE = True
 
 # Configuration
 MQTT_BROKER = "192.168.1.111"
@@ -66,21 +70,22 @@ def on_message(client, userdata, msg):
         }.get(urgency, '🟢')
 
         # Console log
-        print(f"\n{urgency_icon} {Colors.BOLD}New notification from {Colors.CYAN}{app}{Colors.ENDC} [{urgency.upper()}]")
-        
-        # Format timestamp
-        try:
-            dt_object = datetime.fromtimestamp(timestamp / 1000.0)
-            formatted_time = dt_object.strftime('%Y-%m-%d %H:%M:%S')
-        except:
-            formatted_time = "Unknown"
+        if VERBOSE:
+            print(f"\n{urgency_icon} {Colors.BOLD}New notification from {Colors.CYAN}{app}{Colors.ENDC} [{urgency.upper()}]")
 
-        print(f"   {Colors.BOLD}Title:{Colors.ENDC} {title}")
-        print(f"   {Colors.BOLD}Text:{Colors.ENDC} {text}")
-        print(f"   {Colors.BOLD}Category:{Colors.ENDC} {category}")
-        print(f"   {Colors.BOLD}Time:{Colors.ENDC} {Colors.GREY}{formatted_time}{Colors.ENDC}")
-        print(f"   {Colors.BOLD}Package:{Colors.ENDC} {package}")
-        print(f"   {Colors.BOLD}Urgency:{Colors.ENDC} {urgency} (importance: {importance})")
+            # Format timestamp
+            try:
+                dt_object = datetime.fromtimestamp(timestamp / 1000.0)
+                formatted_time = dt_object.strftime('%Y-%m-%d %H:%M:%S')
+            except:
+                formatted_time = "Unknown"
+
+            print(f"   {Colors.BOLD}Title:{Colors.ENDC} {title}")
+            print(f"   {Colors.BOLD}Text:{Colors.ENDC} {text}")
+            print(f"   {Colors.BOLD}Category:{Colors.ENDC} {category}")
+            print(f"   {Colors.BOLD}Time:{Colors.ENDC} {Colors.GREY}{formatted_time}{Colors.ENDC}")
+            print(f"   {Colors.BOLD}Package:{Colors.ENDC} {package}")
+            print(f"   {Colors.BOLD}Urgency:{Colors.ENDC} {urgency} (importance: {importance})")
 
         # Determine urgency for notify-send
         notify_urgency = 'normal'
@@ -115,9 +120,11 @@ def on_message(client, userdata, msg):
 
                 # Add icon to arguments
                 notify_args.extend(['-i', icon_path])
-                print(f"   Icon: Processed (saved to {icon_path})")
+                if VERBOSE:
+                    print(f"   Icon: Processed (saved to {icon_path})")
             except Exception as e:
-                print(f"   Icon: Error processing ({e})")
+                if VERBOSE:
+                    print(f"   Icon: Error processing ({e})")
 
         # Execute notify-send
         subprocess.run(notify_args, check=False)
@@ -139,9 +146,21 @@ def on_disconnect(client, userdata, rc):
         print(f"{Colors.WARNING}⚠ Disconnected unexpectedly. Code: {rc}{Colors.ENDC}")
 
 def main():
+    global VERBOSE
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Receive Android notifications via MQTT')
+    parser.add_argument('--daemon', action='store_true', help='Run in daemon mode (no console output)')
+    args = parser.parse_args()
+
+    if args.daemon:
+        VERBOSE = False
+
     print(f"{Colors.HEADER}🚀 Starting Android → Linux notification receiver{Colors.ENDC}")
     print(f"   Broker: {MQTT_BROKER}:{MQTT_PORT}")
     print(f"   Topic: {MQTT_TOPIC}")
+    if args.daemon:
+        print(f"   Mode: Daemon (Silent notifications)")
     print()
 
     # Create MQTT client
