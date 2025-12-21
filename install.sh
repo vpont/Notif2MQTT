@@ -6,7 +6,7 @@ SERVICE_NAME="notif2mqtt.service"
 SERVICE_FILE="notif2mqtt.service"
 INSTALL_DIR="$HOME/.config/systemd/user"
 BIN_DIR="$HOME/.local/bin"
-SCRIPT_NAME="notif2mqtt"
+SCRIPT_NAME="notif2mqtt.py"
 
 echo "🚀 Installing Notif2MQTT Daemon..."
 
@@ -29,7 +29,7 @@ mkdir -p "$BIN_DIR"
 
 # Copy python script
 echo "� Installing script to $BIN_DIR/$SCRIPT_NAME..."
-cp notif2mqtt.py "$BIN_DIR/$SCRIPT_NAME"
+cp "$SCRIPT_NAME" "$BIN_DIR/$SCRIPT_NAME"
 chmod +x "$BIN_DIR/$SCRIPT_NAME"
 
 # Create systemd user directory if it doesn't exist
