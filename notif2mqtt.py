@@ -12,6 +12,7 @@ import configparser
 from datetime import datetime
 from pathlib import Path
 import argparse
+import socket
 import gi
 
 gi.require_version("Notify", "0.7")
@@ -274,7 +275,8 @@ def main():
     print()
 
     # Create MQTT client
-    client = mqtt.Client(client_id="linux_notification_receiver")
+    client_id = socket.gethostname()
+    client = mqtt.Client(client_id=client_id)
 
     # Configure callbacks
     client.on_connect = on_connect
