@@ -269,7 +269,6 @@ def main():
         print("   Security: SSL/TLS enabled")
     else:
         print("   Security: Unencrypted connection")
-    print(f"   Topic: {config['topic']}")
     if args.daemon:
         print("   Mode: Daemon (Silent notifications)")
     print()
@@ -300,9 +299,10 @@ def main():
         client.connect(config["broker"], config["port"], 60)
 
         # Start loop
-        print(
-            f"{Colors.BLUE}⏳ Waiting for notifications... (Ctrl+C to exit){Colors.ENDC}\n"
-        )
+        if VERBOSE:
+            print(
+                f"{Colors.BLUE}⏳ Waiting for notifications... (Ctrl+C to exit){Colors.ENDC}\n"
+            )
         client.loop_forever()
 
     except KeyboardInterrupt:
