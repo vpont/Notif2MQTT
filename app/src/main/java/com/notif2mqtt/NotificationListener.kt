@@ -17,9 +17,22 @@ import com.notif2mqtt.mqtt.MqttService
 class NotificationListener : NotificationListenerService() {
     private lateinit var settings: SettingsManager
 
+    // Debouncing cache: stores timestamp of last notification with same key
+    private val notificationCache = mutableMapOf<NotificationKey, Long>()
+
+    // Data class to uniquely identify a notification (excluding timestamp and icon)
+    private data class NotificationKey(
+        val packageName: String,
+        val title: String?,
+        val text: String?
+    )
+
     companion object {
         private const val TAG = "NotificationListener"
+        private const val CACHE_CLEANUP_INTERVAL_MS = 60000L // Clean cache every minute
     }
+
+    private var lastCacheCleanup = 0L
 
     override fun onCreate() {
         super.onCreate()
@@ -83,10 +96,19 @@ class NotificationListener : NotificationListenerService() {
                 icon = iconBase64
             )
 
+            // Check if this notification should be debounced
+            if (shouldDebounce(packageName, title, text)) {
+                Log.d(TAG, "Notification debounced: ${notificationData.appName} - ${notificationData.title}")
+                return
+            }
+
             Log.d(TAG, "Notification captured: ${notificationData.appName} - ${notificationData.title} (importance: $importance)")
 
             // Send to MQTT service
             MqttService.publishMessage(this, notificationData.toJson())
+
+            // Cleanup old cache entries periodically
+            cleanupCacheIfNeeded()
 
         } catch (e: Exception) {
             Log.e(TAG, "Error processing notification", e)
@@ -96,6 +118,59 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         // Optional: Handle notification removal if needed
         Log.d(TAG, "Notification removed: ${sbn.packageName}")
+    }
+
+    /**
+     * Checks if a notification should be debounced (ignored because it's a duplicate).
+     * Returns true if the same notification was seen recently, false otherwise.
+     */
+    private fun shouldDebounce(packageName: String, title: String?, text: String?): Boolean {
+        val key = NotificationKey(packageName, title, text)
+        val now = System.currentTimeMillis()
+        val debounceWindow = settings.debounceWindowMs
+
+        // Get last seen timestamp for this notification
+        val lastSeen = notificationCache[key]
+
+        return if (lastSeen != null && (now - lastSeen) < debounceWindow) {
+            // Notification is within debounce window, ignore it
+            true
+        } else {
+            // Update cache with current timestamp
+            notificationCache[key] = now
+            false
+        }
+    }
+
+    /**
+     * Cleans up old entries from the cache to prevent memory leaks.
+     * Called periodically after processing notifications.
+     */
+    private fun cleanupCacheIfNeeded() {
+        val now = System.currentTimeMillis()
+        if (now - lastCacheCleanup < CACHE_CLEANUP_INTERVAL_MS) {
+            return
+        }
+
+        lastCacheCleanup = now
+        val debounceWindow = settings.debounceWindowMs
+
+        // Remove entries older than 2x the debounce window
+        val threshold = now - (debounceWindow * 2)
+        val iterator = notificationCache.iterator()
+        var removedCount = 0
+
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            if (entry.value < threshold) {
+                iterator.remove()
+                removedCount++
+            }
+        }
+
+        if (removedCount > 0) {
+            Log.d(TAG, "Cache cleanup: removed $removedCount old entries, ${notificationCache.size} remain")
+        }
     }
 
     private fun getAppName(packageName: String): String {

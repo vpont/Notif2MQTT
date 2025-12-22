@@ -33,10 +33,12 @@ class SettingsManager(context: Context) {
         // App Settings
         private const val KEY_EXCLUDED_APPS = "excluded_apps"
         private const val KEY_SERVICE_ENABLED = "service_enabled"
-        
+        private const val KEY_DEBOUNCE_WINDOW_MS = "debounce_window_ms"
+
         // Defaults (supports both tcp:// and ssl:// protocols)
         const val DEFAULT_BROKER = "tcp://192.168.1.100:1883"
         const val DEFAULT_TOPIC = "notif2mqtt/notifications"
+        const val DEFAULT_DEBOUNCE_WINDOW_MS = 2000L // 2 seconds
     }
 
     // MQTT Configuration
@@ -66,6 +68,10 @@ class SettingsManager(context: Context) {
     var serviceEnabled: Boolean
         get() = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
         set(value) = prefs.edit().putBoolean(KEY_SERVICE_ENABLED, value).apply()
+
+    var debounceWindowMs: Long
+        get() = prefs.getLong(KEY_DEBOUNCE_WINDOW_MS, DEFAULT_DEBOUNCE_WINDOW_MS)
+        set(value) = prefs.edit().putLong(KEY_DEBOUNCE_WINDOW_MS, value).apply()
 
     // Excluded Apps
     var excludedApps: Set<String>
