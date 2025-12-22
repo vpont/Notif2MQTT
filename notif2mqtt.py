@@ -17,7 +17,7 @@ import argparse
 import gi
 
 gi.require_version("Notify", "0.7")
-from gi.repository import Notify, GdkPixbuf, GLib
+from gi.repository import Notify, GdkPixbuf, GLib, Gio
 
 # Global configuration
 VERBOSE = True
@@ -193,36 +193,26 @@ def on_message(client, userdata, msg):
                 notification.set_hint("category", GLib.Variant.new_string(category))
 
             # Process icon if available
-            icon_path = None
             if icon_base64:
                 try:
                     # Decode Base64
                     icon_data = base64.b64decode(icon_base64)
 
-                    # Create temp file
-                    fd, icon_path = tempfile.mkstemp(suffix=".png")
-                    with os.fdopen(fd, "wb") as f:
-                        f.write(icon_data)
+                    # Create memory stream from icon data
+                    stream = Gio.MemoryInputStream.new_from_data(icon_data, None)
 
-                    # Load icon into pixbuf and set it
-                    pixbuf = GdkPixbuf.Pixbuf.new_from_file(icon_path)
+                    # Load icon into pixbuf from stream and set it
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, None)
                     notification.set_image_from_pixbuf(pixbuf)
 
                     if VERBOSE:
-                        print(f"   Icon: Processed (saved to {icon_path})")
+                        print("   Icon: Processed")
                 except Exception as e:
                     if VERBOSE:
                         print(f"   Icon: Error processing ({e})")
 
             # Show notification
             notification.show()
-
-            # Cleanup temp file
-            if icon_path and os.path.exists(icon_path):
-                try:
-                    os.remove(icon_path)
-                except:
-                    pass
 
         except Exception as e:
             print(f"{Colors.FAIL}✗ Error showing notification: {e}{Colors.ENDC}")
