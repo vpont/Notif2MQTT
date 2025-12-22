@@ -21,6 +21,8 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
 import com.notif2mqtt.models.ConnectionState
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.notif2mqtt.mqtt.MqttService
 
 class MainActivity : AppCompatActivity() {
@@ -151,26 +153,43 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadInstalledApps() {
-        val packageManager = packageManager
+        lifecycleScope.launch {
+            val apps = withContext(Dispatchers.IO) {
+                val packageManager = packageManager
 
-        // Get all installed applications (including system apps)
-        val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+                // Get all installed applications
+                val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
-        val apps = installedApps.mapNotNull { appInfo ->
-            try {
-                AppInfo(
-                    packageName = appInfo.packageName,
-                    name = packageManager.getApplicationLabel(appInfo).toString(),
-                    icon = packageManager.getApplicationIcon(appInfo)
-                )
-            } catch (e: PackageManager.NameNotFoundException) {
-                null // Skip if app info not found
-            } catch (e: Exception) {
-                null // Skip any other issues
+                // Filter to only show apps that are likely to emit notifications:
+                // 1. Apps with launcher icon (user-facing apps)
+                // 2. Non-system apps (user-installed apps)
+                installedApps.filter { appInfo ->
+                    // Check if app has a launcher icon
+                    val hasLauncher = packageManager.getLaunchIntentForPackage(appInfo.packageName) != null
+
+                    // Check if it's a user-installed app (not system app)
+                    val isUserApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0
+
+                    // Include if either condition is true
+                    hasLauncher || isUserApp
+                }.mapNotNull { appInfo ->
+                    try {
+                        AppInfo(
+                            packageName = appInfo.packageName,
+                            name = packageManager.getApplicationLabel(appInfo).toString(),
+                            icon = packageManager.getApplicationIcon(appInfo)
+                        )
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        null // Skip if app info not found
+                    } catch (e: Exception) {
+                        null // Skip any other issues
+                    }
+                }.sortedBy { it.name.lowercase() }
             }
-        }.sortedBy { it.name }
 
-        appsAdapter.updateApps(apps)
+            // Update UI on main thread
+            appsAdapter.updateApps(apps)
+        }
     }
 
     private fun updateConnectionStatus(state: ConnectionState) {
