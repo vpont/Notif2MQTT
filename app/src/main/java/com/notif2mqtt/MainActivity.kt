@@ -219,8 +219,12 @@ class AppsAdapter(
         val app = apps[position]
         holder.icon.setImageDrawable(app.icon)
         holder.name.text = app.name
+
+        // Remove listener before setting checked state to avoid triggering it during recycling
+        holder.checkbox.setOnCheckedChangeListener(null)
         holder.checkbox.isChecked = settings.isAppExcluded(app.packageName)
 
+        // Add listener after setting the initial state
         holder.checkbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked != settings.isAppExcluded(app.packageName)) {
                 settings.toggleAppExclusion(app.packageName)
