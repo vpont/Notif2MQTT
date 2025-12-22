@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Script to receive Android notifications via MQTT and display them on Linux
-Requires: pip install paho-mqtt
 """
 
 import paho.mqtt.client as mqtt
@@ -9,7 +8,6 @@ import json
 import sys
 import base64
 import os
-import tempfile
 import configparser
 from datetime import datetime
 from pathlib import Path
@@ -17,7 +15,7 @@ import argparse
 import gi
 
 gi.require_version("Notify", "0.7")
-from gi.repository import Notify, GdkPixbuf, GLib, Gio
+from gi.repository import Notify, GdkPixbuf, GLib, Gio  # noqa: E402
 
 # Global configuration
 VERBOSE = True
@@ -74,7 +72,6 @@ def load_config(config_file: Path = None):
                 config["broker"] = mqtt_section.get("broker", config["broker"])
                 config["port"] = mqtt_section.getint("port", config["port"])
                 config["ssl"] = mqtt_section.getboolean("ssl", config["ssl"])
-                config["topic"] = mqtt_section.get("topic", config["topic"])
                 config["username"] = mqtt_section.get("username", config["username"])
                 config["password"] = mqtt_section.get("password", config["password"])
 
@@ -103,7 +100,6 @@ def create_default_config(config_file: Path = None):
         "broker": config["broker"],
         "port": str(config["port"]),
         "ssl": str(config["ssl"]).lower(),
-        "topic": config["topic"],
         "username": config["username"],
         "password": config["password"],
     }
@@ -159,7 +155,7 @@ def on_message(client, userdata, msg):
             try:
                 dt_object = datetime.fromtimestamp(timestamp / 1000.0)
                 formatted_time = dt_object.strftime("%Y-%m-%d %H:%M:%S")
-            except:
+            except Exception:
                 formatted_time = "Unknown"
 
             print(f"   {Colors.BOLD}Title:{Colors.ENDC} {title}")

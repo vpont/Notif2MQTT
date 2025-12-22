@@ -44,9 +44,8 @@ class SettingsManager(context: Context) {
         get() = prefs.getString(KEY_MQTT_BROKER, DEFAULT_BROKER) ?: DEFAULT_BROKER
         set(value) = prefs.edit().putString(KEY_MQTT_BROKER, value).apply()
 
-    var mqttTopic: String
-        get() = prefs.getString(KEY_MQTT_TOPIC, DEFAULT_TOPIC) ?: DEFAULT_TOPIC
-        set(value) = prefs.edit().putString(KEY_MQTT_TOPIC, value).apply()
+    val mqttTopic: String
+        get() = DEFAULT_TOPIC
 
     var mqttUsername: String
         get() = prefs.getString(KEY_MQTT_USERNAME, "") ?: ""

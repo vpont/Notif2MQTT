@@ -55,7 +55,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupViews() {
         // Load current settings
         findViewById<TextInputEditText>(R.id.brokerInput).setText(settings.mqttBroker)
-        findViewById<TextInputEditText>(R.id.topicInput).setText(settings.mqttTopic)
         findViewById<TextInputEditText>(R.id.usernameInput).setText(settings.mqttUsername)
         findViewById<TextInputEditText>(R.id.passwordInput).setText(settings.mqttPassword)
 
@@ -78,12 +77,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun saveSettings() {
         val broker = findViewById<TextInputEditText>(R.id.brokerInput).text.toString()
-        val topic = findViewById<TextInputEditText>(R.id.topicInput).text.toString()
         val username = findViewById<TextInputEditText>(R.id.usernameInput).text.toString()
         val password = findViewById<TextInputEditText>(R.id.passwordInput).text.toString()
 
-        if (broker.isEmpty() || topic.isEmpty()) {
-            Toast.makeText(this, getString(R.string.broker_topic_required), Toast.LENGTH_SHORT).show()
+        if (broker.isEmpty()) {
+            Toast.makeText(this, getString(R.string.broker_required), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -94,7 +92,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         settings.mqttBroker = broker
-        settings.mqttTopic = topic
         settings.mqttUsername = username
         settings.mqttPassword = password
 
