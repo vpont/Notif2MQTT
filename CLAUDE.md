@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Notif2MQTT is a lightweight Android application that captures device notifications and relays them to an MQTT broker. It also includes a Linux Python daemon that receives and displays these notifications on desktop. The project bridges Android and Linux ecosystems using MQTT as the transport layer.
+Notif2MQTT is a lightweight Android application that captures device notifications and relays them to an MQTT broker. The app bridges Android notifications to any MQTT consumer using a standardized JSON format over MQTT.
 
-**Tech Stack**: Kotlin (Android), Python 3 (Linux integration), Eclipse Paho MQTT with TLS/SSL support, Material Design 3
+**Tech Stack**: Kotlin (Android), Eclipse Paho MQTT with TLS/SSL support, Material Design 3
 
 ## Common Commands
 
@@ -48,30 +48,11 @@ Notif2MQTT is a lightweight Android application that captures device notificatio
 ./gradlew connectedAndroidTest
 ```
 
-### Linux Components
-
-```bash
-# Initialize Linux receiver configuration
-python3 notif2mqtt.py --init-config
-
-# Run Linux receiver in foreground (debug mode)
-python3 notif2mqtt.py
-
-# Run as daemon (systemd mode)
-python3 notif2mqtt.py --daemon
-
-# Install as systemd service
-sudo ./install.sh
-
-# Uninstall systemd service
-sudo ./uninstall.sh
-```
-
 ## Architecture Overview
 
-The application uses a **service-based, event-driven architecture** with clear separation between Android and Linux components:
+The application uses a **service-based, event-driven architecture**:
 
-### Android Side (Kotlin)
+### Android Components (Kotlin)
 
 ```
 Notification System
@@ -105,27 +86,6 @@ MainActivity (UI layer for configuration)
 
 - **BootReceiver** (`app/src/main/java/com/notif2mqtt/BootReceiver.kt`): Broadcast receiver that auto-starts MqttService on device boot.
 
-### Linux Side (Python)
-
-```
-MQTT Broker
-    ↓
-notif2mqtt.py (subscribes to topic)
-    ↓
-libnotify (native notification system)
-    ↓
-Desktop Notification
-```
-
-**Key Features**:
-
-- XDG Base Directory compliant configuration (`~/.config/notif2mqtt/config.ini`)
-- SSL/TLS support for secure MQTT connections
-- Parses MQTT JSON payloads, decodes Base64 icons
-- Maps importance levels to notification urgency
-- Systemd integration with auto-restart policy
-- Color-coded console output for debugging
-
 ## Data Flow
 
 1. **Notification Capture**: Android system notification arrives → `NotificationListenerService.onNotificationPosted()`
@@ -133,8 +93,8 @@ Desktop Notification
 3. **Modeling**: Create `NotificationData` object, calculate urgency level
 4. **Publishing**: Intent sent to `MqttService` with serialized notification
 5. **MQTT Transmission**: `MqttManager` publishes JSON to configured MQTT topic (QoS 1)
-6. **Linux Reception**: `notif2mqtt.py` receives JSON, creates notification via libnotify
-7. **Display**: Desktop shows notification with urgency level, app icon, title, text
+
+**Note**: For consuming these notifications on Linux desktop, see the companion project **[mqtt2notif](https://github.com/yourusername/mqtt2notif)**
 
 ## Data Model
 
@@ -203,8 +163,6 @@ Located in `AndroidManifest.xml`:
 
 6. **App Exclusion List**: Stored as pipe-separated package names in SharedPreferences. Checked before processing each notification.
 
-7. **XDG Compliance**: Linux receiver uses `$XDG_CONFIG_HOME` (or `~/.config`) for configuration, following Linux standards.
-
 ## Testing
 
 **Current Status**: No automated tests configured.
@@ -215,7 +173,6 @@ Located in `AndroidManifest.xml`:
 - Integration tests for `MqttManager` connection/publishing
 - Instrumentation tests for `MainActivity` UI interactions
 - Mock tests for `NotificationListenerService` callbacks
-- Python tests for `notif2mqtt.py` JSON parsing and systemd integration
 
 ## Troubleshooting Development Issues
 
@@ -235,12 +192,6 @@ Located in `AndroidManifest.xml`:
 - Confirm `MqttService` is a foreground service with proper notification
 - Verify `START_STICKY` return value in `onStartCommand()`
 - Check device battery optimization settings aren't killing the app
-
-### "Linux receiver doesn't show notifications"
-- Verify libnotify is installed: `sudo apt install libnotify-bin` (Ubuntu) or `pacman -S libnotify` (Arch)
-- Check PyGObject installed: `pip install PyGObject`
-- Verify MQTT broker connectivity and topic subscribed correctly
-- Test icon decoding by checking temp `/tmp/notif_*.png` files
 
 ## File Organization
 
@@ -269,14 +220,9 @@ app/src/main/
 - **Build System Updates**: Updated Android Gradle Plugin to 8.5.2 for Gradle 10 compatibility
 - **Enhanced UI**: Added TLS connection status indicators and improved broker URL validation
 
-## Linux Integration
+## Related Projects
 
-The Python component (`notif2mqtt.py`) is a standalone daemon that:
-1. Reads MQTT configuration from `~/.config/notif2mqtt/config.ini`
-2. Subscribes to the MQTT topic
-3. Parses JSON notification payloads
-4. Decodes Base64 icons to temporary PNG files
-5. Creates and displays libnotify notifications
-6. Maps urgency levels appropriately
+**mqtt2notif**: Python daemon for receiving MQTT notifications and displaying them on Linux desktop via libnotify. Complements this Android app to complete the notification bridge.
 
-The `install.sh` script automates installation as a systemd user service, ensuring the receiver persists across reboots.
+- Repository: https://github.com/yourusername/mqtt2notif
+- Together they form: Android → Notif2MQTT → MQTT → mqtt2notif → Linux Desktop

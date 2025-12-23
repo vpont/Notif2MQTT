@@ -104,56 +104,28 @@ The `category` field contains the Android notification category (if available):
 - **event**: Calendar events
 - **transport**: Travel/transportation updates
 
-## Linux Integration
+## Consuming Notifications
 
-### Install Mosquitto (MQTT Broker)
+Notif2MQTT sends notifications to an MQTT broker in JSON format. You can consume these notifications using any MQTT client.
 
+### MQTT Broker Setup
+
+**Arch Linux:**
 ```bash
-# Arch Linux
 sudo pacman -S mosquitto
 sudo systemctl start mosquitto
 sudo systemctl enable mosquitto
+```
 
-# Ubuntu/Debian
+**Ubuntu/Debian:**
+```bash
 sudo apt install mosquitto
 sudo systemctl start mosquitto
 ```
 
-### Linux Receiver
+### Linux Desktop Integration
 
-The `notif2mqtt.py` displays Android notifications on your Linux desktop using libnotify. Supports both unencrypted and SSL/TLS encrypted MQTT connections.
-
-#### Configuration
-
-It reads configuration from `~/.config/notif2mqtt/config.ini` (or `$XDG_CONFIG_HOME/notif2mqtt/config.ini`):
-
-```ini
-[mqtt]
-broker = 192.168.1.100
-port = 1883
-ssl = false  # Set to true for encrypted connections (port 8883)
-topic = notif2mqtt/notifications
-username =
-password =
-```
-
-#### Create the default configuration file:
-
-```bash
-./notif2mqtt.py --init-config
-```
-
-#### Install as a systemd daemon
-
-```bash
-sudo ./install.sh
-```
-
-#### Uninstall Daemon
-
-```bash
-sudo ./uninstall.sh
-```
+For displaying notifications on Linux desktop, check out **[mqtt2notif](https://github.com/yourusername/mqtt2notif)** - a companion Python daemon that receives MQTT notifications and displays them using libnotify.
 
 ## Architecture
 
@@ -177,15 +149,11 @@ sudo ./uninstall.sh
 ┌─────────────────────────────────────┐
 │   MQTT Broker                       │
 │   - Mosquitto / HiveMQ / etc        │
-└──────────────┬──────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│   Linux Receiver (notif2mqtt.py)    │
-│   - Displays notifications          │
-│   - Respects urgency levels         │
+│   - Any MQTT consumer               │
 └─────────────────────────────────────┘
 ```
+
+**Note**: For Linux desktop integration, see [mqtt2notif](https://github.com/yourusername/mqtt2notif)
 
 ## Troubleshooting
 
@@ -218,6 +186,10 @@ sudo ./uninstall.sh
 - Eclipse Paho MQTT Client (1.2.5) with SSL/TLS support
 - AndroidX Core, AppCompat, Material Design
 - RecyclerView
+
+## Related Projects
+
+- **[mqtt2notif](https://github.com/yourusername/mqtt2notif)** - Linux desktop receiver for displaying Android notifications via libnotify
 
 ## Contributing
 
