@@ -15,6 +15,11 @@
     <string name="settings_saved">Settings saved successfully</string>
     <string name="enable_notification_access">Please enable notification access in Settings</string>
 
+    <!-- Notification Settings -->
+    <string name="notification_settings">Notification Settings</string>
+    <string name="skip_when_screen_on">Skip when screen is on</string>
+    <string name="skip_when_screen_on_hint">Don\'t send notifications when the device is actively being used</string>
+
     <!-- Permissions Status -->
     <string name="permissions">Permissions</string>
     <string name="notification_access">Notification Access</string>

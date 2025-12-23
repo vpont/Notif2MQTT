@@ -1,6 +1,7 @@
 package com.notif2mqtt
 
 import android.content.pm.PackageManager
+import android.os.PowerManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -58,6 +59,12 @@ class NotificationListener : NotificationListenerService() {
             // Check if app is excluded
             if (settings.isAppExcluded(packageName)) {
                 Log.d(TAG, "App excluded: $packageName")
+                return
+            }
+
+            // Check if we should skip notifications when screen is on
+            if (settings.skipNotificationsWhenScreenOn && isScreenOn()) {
+                Log.d(TAG, "Screen is on and skip setting is enabled, ignoring notification")
                 return
             }
 
@@ -256,10 +263,20 @@ class NotificationListener : NotificationListenerService() {
             // 3. Try MessagingStyle person icon (for chat apps like WhatsApp)
             if (bitmap == null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                 try {
-                    val messages = extras.getParcelableArray("android.messages")
+                    val messages = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        extras.getParcelableArray("android.messages", android.os.Parcelable::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        extras.getParcelableArray("android.messages")
+                    }
                     if (messages != null && messages.isNotEmpty()) {
                         val lastMessage = messages.last() as? android.os.Bundle
-                        val senderPerson = lastMessage?.getParcelable<android.app.Person>("sender_person")
+                        val senderPerson = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                            lastMessage?.getParcelable("sender_person", android.app.Person::class.java)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            lastMessage?.getParcelable<android.app.Person>("sender_person")
+                        }
                         val icon = senderPerson?.icon
                         if (icon != null) {
                             bitmap = icon.loadDrawable(this)?.let { drawableToBitmap(it) }
@@ -297,5 +314,14 @@ class NotificationListener : NotificationListenerService() {
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         Log.w(TAG, "NotificationListener disconnected")
+    }
+
+    /**
+     * Checks if the device screen is currently on (interactive).
+     * Returns true if the screen is on and the device is being actively used.
+     */
+    private fun isScreenOn(): Boolean {
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        return powerManager.isInteractive
     }
 }

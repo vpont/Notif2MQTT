@@ -60,6 +60,13 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextInputEditText>(R.id.usernameInput).setText(settings.mqttUsername)
         findViewById<TextInputEditText>(R.id.passwordInput).setText(settings.mqttPassword)
 
+        // Load screen-on skip setting
+        val skipScreenOnSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.skipScreenOnSwitch)
+        skipScreenOnSwitch.isChecked = settings.skipNotificationsWhenScreenOn
+        skipScreenOnSwitch.setOnCheckedChangeListener { _, isChecked ->
+            settings.skipNotificationsWhenScreenOn = isChecked
+        }
+
         // Save button
         findViewById<MaterialButton>(R.id.saveButton).setOnClickListener {
             saveSettings()
