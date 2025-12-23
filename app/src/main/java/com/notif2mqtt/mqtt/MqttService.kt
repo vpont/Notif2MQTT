@@ -69,13 +69,13 @@ class MqttService : Service() {
 
         mqttManager = MqttManager(this)
 
-        // Acquire wake lock to keep service running
+        // Acquire wake lock to keep service running (with timeout for battery optimization)
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             "Notif2MQTT::MqttServiceWakeLock"
         )
-        wakeLock?.acquire()
+        wakeLock?.acquire(30 * 60 * 1000L) // 30 minutos máximo para optimizar batería
 
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, createNotification(getString(R.string.connecting)))
