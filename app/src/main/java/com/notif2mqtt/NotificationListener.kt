@@ -235,7 +235,7 @@ class NotificationListener : NotificationListenerService() {
             var bitmap: Bitmap? = null
 
             // 1. Try BigPictureStyle picture (most common for media)
-            bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 extras.getParcelable("android.picture", android.graphics.Bitmap::class.java)
             } else {
                 @Suppress("DEPRECATION")
@@ -244,7 +244,7 @@ class NotificationListener : NotificationListenerService() {
 
             // 2. Try large icon from extras (fallback)
             if (bitmap == null) {
-                bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                     extras.getParcelable("android.largeIcon", android.graphics.Bitmap::class.java)
                 } else {
                     @Suppress("DEPRECATION")
