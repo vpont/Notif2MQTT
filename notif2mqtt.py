@@ -161,7 +161,8 @@ def on_message(client, userdata, msg):
 
             print(f"   {Colors.BOLD}Title:{Colors.ENDC} {title}")
             print(f"   {Colors.BOLD}Text:{Colors.ENDC} {text}")
-            print(f"   {Colors.BOLD}Category:{Colors.ENDC} {category}")
+            if category:
+                print(f"   {Colors.BOLD}Category:{Colors.ENDC} {category}")
             print(
                 f"   {Colors.BOLD}Time:{Colors.ENDC} {Colors.GREY}{formatted_time}{Colors.ENDC}"
             )
@@ -261,9 +262,7 @@ def main():
         print(f"{Colors.FAIL}✗ Error: Failed to initialize libnotify{Colors.ENDC}")
         sys.exit(1)
 
-    print(
-        f"{Colors.HEADER}🚀 Starting Android → Linux notification receiver{Colors.ENDC}"
-    )
+    print(f"{Colors.HEADER}🚀 Starting Linux notification receiver{Colors.ENDC}")
     print(f"   Broker: {config['broker']}:{config['port']}")
     if config["ssl"]:
         print("   Security: SSL/TLS enabled")
