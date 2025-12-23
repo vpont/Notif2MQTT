@@ -194,15 +194,7 @@ class NotificationListener : NotificationListenerService() {
 
     private fun getNotificationIcon(notification: android.app.Notification, packageName: String): String? {
         return try {
-            // Try to get large icon first
-            val largeIcon = notification.getLargeIcon()
-            val drawable = if (largeIcon != null) {
-                largeIcon.loadDrawable(this) ?: packageManager.getApplicationIcon(packageName)
-            } else {
-                // Fallback to app icon
-                packageManager.getApplicationIcon(packageName)
-            }
-
+            val drawable = packageManager.getApplicationIcon(packageName)
             val bitmap = drawableToBitmap(drawable)
             // Resize to 128x128 with bilinear filtering for better quality
             val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, true)
