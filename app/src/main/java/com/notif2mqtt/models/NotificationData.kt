@@ -10,7 +10,8 @@ data class NotificationData(
     val timestamp: Long,
     val importance: Int,     // 0 (NONE) to 5 (MAX)
     val category: String?,   // Notification category
-    val icon: String? = null // Base64 encoded icon
+    val icon: String? = null, // Base64 encoded icon (128x128 PNG)
+    val previewImage: String? = null // Base64 encoded preview image (256x256 JPEG)
 ) {
     fun toJson(): String {
         val json = JSONObject()
@@ -24,6 +25,9 @@ data class NotificationData(
         json.put("urgency", getUrgencyLevel())  // Helper field
         if (icon != null) {
             json.put("icon", icon)
+        }
+        if (previewImage != null) {
+            json.put("previewImage", previewImage)
         }
         return json.toString()
     }
@@ -45,7 +49,8 @@ data class NotificationData(
             text: String?,
             importance: Int = 3,
             category: String? = null,
-            icon: String? = null
+            icon: String? = null,
+            previewImage: String? = null
         ): NotificationData {
             return NotificationData(
                 packageName = packageName,
@@ -55,7 +60,8 @@ data class NotificationData(
                 timestamp = System.currentTimeMillis(),
                 importance = importance,
                 category = category,
-                icon = icon
+                icon = icon,
+                previewImage = previewImage
             )
         }
     }

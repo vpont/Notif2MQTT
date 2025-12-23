@@ -13,10 +13,19 @@ from datetime import datetime
 from pathlib import Path
 import argparse
 import socket
+import io
 import gi
 
 gi.require_version("Notify", "0.7")
 from gi.repository import Notify, GdkPixbuf, GLib, Gio  # noqa: E402
+
+try:
+    from PIL import Image, ImageDraw
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+    print("Warning: Pillow not installed. Composite images (icon + preview) won't work.")
+    print("Install with: pip install Pillow")
 
 # Global configuration
 VERBOSE = True
@@ -111,6 +120,100 @@ def create_default_config(config_file: Path = None):
     print(f"{Colors.GREEN}✓ Created default config at {config_file}{Colors.ENDC}")
 
 
+def pil_to_pixbuf(pil_image):
+    """Convert PIL Image to GdkPixbuf.Pixbuf"""
+    buffer = io.BytesIO()
+    pil_image.save(buffer, format='PNG')
+    buffer.seek(0)
+    stream = Gio.MemoryInputStream.new_from_data(buffer.read(), None)
+    pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, None)
+    return pixbuf
+
+
+def pixbuf_to_pil(pixbuf):
+    """Convert GdkPixbuf.Pixbuf to PIL Image"""
+    width = pixbuf.get_width()
+    height = pixbuf.get_height()
+    rowstride = pixbuf.get_rowstride()
+    pixels = pixbuf.get_pixels()
+    has_alpha = pixbuf.get_has_alpha()
+
+    if has_alpha:
+        mode = 'RGBA'
+    else:
+        mode = 'RGB'
+
+    image = Image.frombytes(mode, (width, height), pixels, 'raw', mode, rowstride)
+    return image
+
+
+def create_composite_image(icon_base64, preview_base64, position='bottom-right'):
+    """
+    Create composite image with icon overlaid on preview
+
+    Args:
+        icon_base64: Base64 encoded icon (128x128 PNG)
+        preview_base64: Base64 encoded preview (256x256 JPEG)
+        position: Icon position ('bottom-right', 'top-right', 'top-left', 'bottom-left')
+
+    Returns:
+        GdkPixbuf.Pixbuf of composite image, or None on error
+    """
+    if not PIL_AVAILABLE:
+        return None
+
+    try:
+        # Decode images
+        icon_data = base64.b64decode(icon_base64)
+        preview_data = base64.b64decode(preview_base64)
+
+        # Load as PIL Images
+        icon_img = Image.open(io.BytesIO(icon_data)).convert('RGBA')
+        preview_img = Image.open(io.BytesIO(preview_data)).convert('RGBA')
+
+        # Create composite
+        composite = preview_img.copy()
+
+        # Resize icon to 64x64 for overlay
+        icon_size = (64, 64)
+        icon_resized = icon_img.resize(icon_size, Image.Resampling.LANCZOS)
+
+        # Calculate position
+        margin = 8
+        if position == 'bottom-right':
+            x = composite.width - icon_size[0] - margin
+            y = composite.height - icon_size[1] - margin
+        elif position == 'top-right':
+            x = composite.width - icon_size[0] - margin
+            y = margin
+        elif position == 'top-left':
+            x = margin
+            y = margin
+        elif position == 'bottom-left':
+            x = margin
+            y = composite.height - icon_size[1] - margin
+        else:
+            x = margin
+            y = margin
+
+        # Add subtle shadow for visibility
+        shadow = Image.new('RGBA', icon_size, (0, 0, 0, 0))
+        shadow_draw = ImageDraw.Draw(shadow)
+        shadow_draw.ellipse([4, 4, icon_size[0]-4, icon_size[1]-4], fill=(0, 0, 0, 100))
+        composite.paste(shadow, (x+2, y+2), shadow)
+
+        # Paste icon using alpha channel as mask
+        composite.paste(icon_resized, (x, y), icon_resized)
+
+        # Convert back to pixbuf
+        return pil_to_pixbuf(composite)
+
+    except Exception as e:
+        if VERBOSE:
+            print(f"   Error creating composite image: {e}")
+        return None
+
+
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print(
@@ -137,6 +240,7 @@ def on_message(client, userdata, msg):
         urgency = data.get("urgency", "normal")
         category = data.get("category", "")
         icon_base64 = data.get("icon", None)
+        preview_image_base64 = data.get("previewImage", None)
 
         # Console log
         if VERBOSE:
@@ -190,24 +294,125 @@ def on_message(client, userdata, msg):
             if category:
                 notification.set_hint("category", GLib.Variant.new_string(category))
 
-            # Process icon if available
-            if icon_base64:
+            # Process images: Create composite if both available, otherwise show what we have
+            if preview_image_base64 and icon_base64:
+                # Both preview and icon available: create composite image
+                if VERBOSE:
+                    print("   Creating composite image (preview + icon)...")
+
+                composite_pixbuf = create_composite_image(icon_base64, preview_image_base64, position='bottom-right')
+
+                if composite_pixbuf:
+                    try:
+                        # Use set_hint with image-data for composite
+                        notification.set_hint(
+                            "image-data",
+                            GLib.Variant(
+                                "(iiibiiay)",
+                                (
+                                    composite_pixbuf.get_width(),
+                                    composite_pixbuf.get_height(),
+                                    composite_pixbuf.get_rowstride(),
+                                    composite_pixbuf.get_has_alpha(),
+                                    composite_pixbuf.get_bits_per_sample(),
+                                    composite_pixbuf.get_n_channels(),
+                                    composite_pixbuf.get_pixels(),
+                                ),
+                            ),
+                        )
+                        if VERBOSE:
+                            print("   ✓ Composite image set (preview with icon in bottom-right)")
+                    except Exception as e:
+                        if VERBOSE:
+                            print(f"   ✗ Error setting composite image: {e}")
+                else:
+                    # Fallback to just preview if composite failed
+                    if VERBOSE:
+                        print("   Composite failed, using preview only")
+                    try:
+                        preview_data = base64.b64decode(preview_image_base64)
+                        stream = Gio.MemoryInputStream.new_from_data(preview_data, None)
+                        pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, None)
+                        notification.set_hint(
+                            "image-data",
+                            GLib.Variant(
+                                "(iiibiiay)",
+                                (
+                                    pixbuf.get_width(),
+                                    pixbuf.get_height(),
+                                    pixbuf.get_rowstride(),
+                                    pixbuf.get_has_alpha(),
+                                    pixbuf.get_bits_per_sample(),
+                                    pixbuf.get_n_channels(),
+                                    pixbuf.get_pixels(),
+                                ),
+                            ),
+                        )
+                        if VERBOSE:
+                            print("   ✓ Preview image set")
+                    except Exception as e:
+                        if VERBOSE:
+                            print(f"   ✗ Error setting preview: {e}")
+
+            elif preview_image_base64:
+                # Only preview available
                 try:
-                    # Decode Base64
-                    icon_data = base64.b64decode(icon_base64)
-
-                    # Create memory stream from icon data
-                    stream = Gio.MemoryInputStream.new_from_data(icon_data, None)
-
-                    # Load icon into pixbuf from stream and set it
+                    preview_data = base64.b64decode(preview_image_base64)
+                    stream = Gio.MemoryInputStream.new_from_data(preview_data, None)
                     pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, None)
-                    notification.set_image_from_pixbuf(pixbuf)
+
+                    # Use set_hint with image-data for preview
+                    notification.set_hint(
+                        "image-data",
+                        GLib.Variant(
+                            "(iiibiiay)",
+                            (
+                                pixbuf.get_width(),
+                                pixbuf.get_height(),
+                                pixbuf.get_rowstride(),
+                                pixbuf.get_has_alpha(),
+                                pixbuf.get_bits_per_sample(),
+                                pixbuf.get_n_channels(),
+                                pixbuf.get_pixels(),
+                            ),
+                        ),
+                    )
 
                     if VERBOSE:
-                        print("   Icon: Processed")
+                        print("   ✓ Preview image set (256x256)")
                 except Exception as e:
                     if VERBOSE:
-                        print(f"   Icon: Error processing ({e})")
+                        print(f"   ✗ Error processing preview: {e}")
+
+            elif icon_base64:
+                # Only icon available (no preview)
+                try:
+                    icon_data = base64.b64decode(icon_base64)
+                    stream = Gio.MemoryInputStream.new_from_data(icon_data, None)
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, None)
+
+                    # Use set_hint with image-data (consistent with preview handling)
+                    notification.set_hint(
+                        "image-data",
+                        GLib.Variant(
+                            "(iiibiiay)",
+                            (
+                                pixbuf.get_width(),
+                                pixbuf.get_height(),
+                                pixbuf.get_rowstride(),
+                                pixbuf.get_has_alpha(),
+                                pixbuf.get_bits_per_sample(),
+                                pixbuf.get_n_channels(),
+                                pixbuf.get_pixels(),
+                            ),
+                        ),
+                    )
+
+                    if VERBOSE:
+                        print("   ✓ Icon set (128x128)")
+                except Exception as e:
+                    if VERBOSE:
+                        print(f"   ✗ Error processing icon: {e}")
 
             # Show notification
             notification.show()

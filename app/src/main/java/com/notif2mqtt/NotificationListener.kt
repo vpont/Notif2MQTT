@@ -70,6 +70,7 @@ class NotificationListener : NotificationListenerService() {
             val category = notification.category
             val appName = getAppName(packageName)
             val iconBase64 = getNotificationIcon(notification, packageName)
+            val previewImageBase64 = getPreviewImage(notification)
 
             // Extract importance
             val importance = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -93,7 +94,8 @@ class NotificationListener : NotificationListenerService() {
                 text = text,
                 importance = importance,
                 category = category,
-                icon = iconBase64
+                icon = iconBase64,
+                previewImage = previewImageBase64
             )
 
             // Check if this notification should be debounced
@@ -224,6 +226,64 @@ class NotificationListener : NotificationListenerService() {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+    }
+
+    private fun getPreviewImage(notification: android.app.Notification): String? {
+        return try {
+            val extras = notification.extras
+
+            // Try multiple sources for preview image
+            var bitmap: Bitmap? = null
+
+            // 1. Try BigPictureStyle picture (most common for media)
+            bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                extras.getParcelable("android.picture", android.graphics.Bitmap::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                extras.getParcelable<android.graphics.Bitmap>("android.picture")
+            }
+
+            // 2. Try large icon from extras (fallback)
+            if (bitmap == null) {
+                bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    extras.getParcelable("android.largeIcon", android.graphics.Bitmap::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    extras.getParcelable<android.graphics.Bitmap>("android.largeIcon")
+                }
+            }
+
+            // 3. Try MessagingStyle person icon (for chat apps like WhatsApp)
+            if (bitmap == null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                try {
+                    val messages = extras.getParcelableArray("android.messages")
+                    if (messages != null && messages.isNotEmpty()) {
+                        val lastMessage = messages.last() as? android.os.Bundle
+                        val senderPerson = lastMessage?.getParcelable<android.app.Person>("sender_person")
+                        val icon = senderPerson?.icon
+                        if (icon != null) {
+                            bitmap = icon.loadDrawable(this)?.let { drawableToBitmap(it) }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error extracting MessagingStyle icon", e)
+                }
+            }
+
+            if (bitmap != null) {
+                // Resize to 256x256 and use JPEG compression (smaller than PNG)
+                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 256, 256, true)
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream)
+                val byteArray = byteArrayOutputStream.toByteArray()
+                return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+            }
+
+            null
+        } catch (e: Exception) {
+            Log.e(TAG, "Error extracting preview image", e)
+            null
+        }
     }
 
     override fun onListenerConnected() {
