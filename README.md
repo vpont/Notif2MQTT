@@ -111,6 +111,7 @@ Notif2MQTT sends notifications to an MQTT broker in JSON format. You can consume
 ### MQTT Broker Setup
 
 **Arch Linux:**
+
 ```bash
 sudo pacman -S mosquitto
 sudo systemctl start mosquitto
@@ -118,6 +119,7 @@ sudo systemctl enable mosquitto
 ```
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt install mosquitto
 sudo systemctl start mosquitto
@@ -125,7 +127,7 @@ sudo systemctl start mosquitto
 
 ### Linux Desktop Integration
 
-For displaying notifications on Linux desktop, check out **[mqtt2notif](https://github.com/yourusername/mqtt2notif)** - a companion Python daemon that receives MQTT notifications and displays them using libnotify.
+For displaying notifications on Linux desktop, check out **[mqtt2notif](https://github.com/vpont/mqtt2notif)** - a companion Python daemon that receives MQTT notifications and displays them using libnotify.
 
 ## Architecture
 
@@ -153,7 +155,7 @@ For displaying notifications on Linux desktop, check out **[mqtt2notif](https://
 └─────────────────────────────────────┘
 ```
 
-**Note**: For Linux desktop integration, see [mqtt2notif](https://github.com/yourusername/mqtt2notif)
+**Note**: For Linux desktop integration, see [mqtt2notif](https://github.com/vpont/mqtt2notif)
 
 ## Troubleshooting
 
@@ -189,7 +191,7 @@ For displaying notifications on Linux desktop, check out **[mqtt2notif](https://
 
 ## Related Projects
 
-- **[mqtt2notif](https://github.com/yourusername/mqtt2notif)** - Linux desktop receiver for displaying Android notifications via libnotify
+- **[mqtt2notif](https://github.com/vpont/mqtt2notif)** - Linux desktop receiver for displaying Android notifications via libnotify
 
 ## Contributing
 

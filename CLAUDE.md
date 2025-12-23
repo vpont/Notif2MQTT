@@ -94,7 +94,7 @@ MainActivity (UI layer for configuration)
 4. **Publishing**: Intent sent to `MqttService` with serialized notification
 5. **MQTT Transmission**: `MqttManager` publishes JSON to configured MQTT topic (QoS 1)
 
-**Note**: For consuming these notifications on Linux desktop, see the companion project **[mqtt2notif](https://github.com/yourusername/mqtt2notif)**
+**Note**: For consuming these notifications on Linux desktop, see the companion project **[mqtt2notif](https://github.com/vpont/mqtt2notif)**
 
 ## Data Model
 
@@ -120,6 +120,7 @@ Notifications are transmitted as JSON:
 ## Build System
 
 **Gradle Configuration**:
+
 - **Root**: `build.gradle.kts` - Kotlin, Android Gradle Plugin version management
 - **App Module**: `app/build.gradle.kts` - Dependencies, build types, product flavors
 - **Namespace**: `com.notif2mqtt`
@@ -128,6 +129,7 @@ Notifications are transmitted as JSON:
 - **Kotlin Version**: 2.2.21, **JVM Target**: 17
 
 **Key Dependencies**:
+
 - `org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5` - MQTT client
 - `androidx.appcompat:appcompat` - Core AndroidX libraries
 - `com.google.android.material:material` - Material Design 3
@@ -135,6 +137,7 @@ Notifications are transmitted as JSON:
 - `androidx.security:security-crypto:1.1.0-alpha06` - Encrypted preferences for sensitive credentials
 
 **Optimization**:
+
 - R8/ProGuard minification enabled for release builds
 - Resource shrinking enabled
 - Gradle parallel builds and caching enabled
@@ -142,6 +145,7 @@ Notifications are transmitted as JSON:
 ## Key Android Permissions
 
 Located in `AndroidManifest.xml`:
+
 - `INTERNET` - MQTT broker communication
 - `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_DATA_SYNC` - Foreground service operation
 - `WAKE_LOCK` - Prevent sleep during MQTT operations
@@ -168,6 +172,7 @@ Located in `AndroidManifest.xml`:
 **Current Status**: No automated tests configured.
 
 **Recommendations**:
+
 - Unit tests for `NotificationData` JSON serialization
 - Unit tests for `SettingsManager` persistence
 - Integration tests for `MqttManager` connection/publishing
@@ -177,11 +182,13 @@ Located in `AndroidManifest.xml`:
 ## Troubleshooting Development Issues
 
 ### "Notification listener not receiving notifications"
+
 - Verify `NotificationListenerService` is declared in `AndroidManifest.xml` with correct intent filter
 - Check user granted `NOTIFICATION_LISTENER_SERVICE` permission in Settings > Apps
 - Ensure `onNotificationPosted()` callback is not throwing exceptions
 
 ### "MQTT connection fails"
+
 - Verify broker URL includes protocol (`tcp://` for unencrypted or `ssl://` for encrypted connections)
 - For SSL connections, ensure the broker uses a valid certificate or self-signed certificates are accepted
 - Check network connectivity and firewall rules
@@ -189,6 +196,7 @@ Located in `AndroidManifest.xml`:
 - Verify `MqttManager` QoS and timeout settings
 
 ### "Service stops after app backgrounding"
+
 - Confirm `MqttService` is a foreground service with proper notification
 - Verify `START_STICKY` return value in `onStartCommand()`
 - Check device battery optimization settings aren't killing the app
@@ -216,6 +224,7 @@ app/src/main/
 ## Recent Updates
 
 **Latest Changes**:
+
 - **TLS/SSL Support**: Added secure MQTT connections with `ssl://` protocol support and self-signed certificate handling
 - **Build System Updates**: Updated Android Gradle Plugin to 8.5.2 for Gradle 10 compatibility
 - **Enhanced UI**: Added TLS connection status indicators and improved broker URL validation
@@ -224,5 +233,5 @@ app/src/main/
 
 **mqtt2notif**: Python daemon for receiving MQTT notifications and displaying them on Linux desktop via libnotify. Complements this Android app to complete the notification bridge.
 
-- Repository: https://github.com/yourusername/mqtt2notif
+- Repository: https://github.com/vpont/mqtt2notif
 - Together they form: Android → Notif2MQTT → MQTT → mqtt2notif → Linux Desktop
