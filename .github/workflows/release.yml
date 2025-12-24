@@ -21,13 +21,17 @@ jobs:
         with:
           java-version: "25"
           distribution: "temurin"
-          cache: "gradle"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
 
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --no-daemon
 
       - name: Sign APK (Optional)
         if: env.HAS_SIGNING_SECRETS == 'true'
@@ -39,6 +43,7 @@ jobs:
           alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
+          buildToolsVersion: "36.1.0"
         env:
           HAS_SIGNING_SECRETS: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEY_ALIAS != '' && secrets.STORE_PASSWORD != '' && secrets.KEY_PASSWORD != '' }}
 
@@ -47,7 +52,10 @@ jobs:
           if [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
             mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/Notif2MQTT-release-unsigned.apk
           elif [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
+            # If it was signed, it might be named differently by the signing action
             mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/Notif2MQTT-release.apk
+          elif ls app/build/outputs/apk/release/*-signed.apk 1> /dev/null 2>&1; then
+            mv app/build/outputs/apk/release/*-signed.apk app/build/outputs/apk/release/Notif2MQTT-release.apk
           fi
 
       - name: Create GitHub Release
