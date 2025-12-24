@@ -5,3 +5,7 @@
 
 # Keep notification data models
 -keep class com.notif2mqtt.models.** { *; }
+
+# Fix R8 issues with Tink/javax.annotation
+-dontwarn javax.annotation.**
+-dontwarn javax.annotation.concurrent.GuardedBy
