@@ -33,7 +33,7 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease --no-daemon
 
-      - name: Sign APK (Optional)
+      - name: Sign APK
         if: env.HAS_SIGNING_SECRETS == 'true'
         id: sign_app
         uses: r0adkll/sign-android-release@v1
@@ -48,13 +48,10 @@ jobs:
 
       - name: Rename APK
         run: |
-          if [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
+          if [ -f "app/build/outputs/apk/release/app-release-unsigned-signed.apk" ]; then
+            mv app/build/outputs/apk/release/app-release-unsigned-signed.apk app/build/outputs/apk/release/Notif2MQTT-release.apk
+          elif [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
             mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/Notif2MQTT-release-unsigned.apk
-          elif [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
-            # If it was signed, it might be named differently by the signing action
-            mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/Notif2MQTT-release.apk
-          elif ls app/build/outputs/apk/release/*-signed.apk 1> /dev/null 2>&1; then
-            mv app/build/outputs/apk/release/*-signed.apk app/build/outputs/apk/release/Notif2MQTT-release.apk
           fi
 
       - name: Create GitHub Release
