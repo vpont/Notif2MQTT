@@ -1,6 +1,23 @@
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+// Get version name from the latest git tag (e.g., "v1.2.3" -> "1.2.3")
+val gitVersionName: Provider<String> = providers.exec {
+    commandLine("git", "describe", "--tags", "--abbrev=0")
+    isIgnoreExitValue = true
+}.standardOutput.asText.map { output ->
+    val result = output.trim()
+    if (result.isNotEmpty()) result.removePrefix("v") else "0.0.0"
+}.orElse("0.0.0")
+
+// Get version code from the total number of commits
+val gitVersionCode: Provider<Int> = providers.exec {
+    commandLine("git", "rev-list", "--count", "HEAD")
+    isIgnoreExitValue = true
+}.standardOutput.asText.map { output ->
+    output.trim().toIntOrNull() ?: 1
+}.orElse(1)
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -15,8 +32,8 @@ android {
         applicationId = "com.notif2mqtt"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = gitVersionCode.get()
+        versionName = gitVersionName.get()
     }
 
     buildTypes {
