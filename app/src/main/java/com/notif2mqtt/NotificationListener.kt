@@ -25,12 +25,33 @@ class NotificationListener : NotificationListenerService() {
     private data class NotificationKey(
         val packageName: String,
         val title: String?,
-        val text: String?
-    )
+        val text: String?,
+        val normalizedText: String?
+    ) {
+        // Override equals and hashCode to use normalized text for comparison
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is NotificationKey) return false
+            return packageName == other.packageName &&
+                   title == other.title &&
+                   normalizedText == other.normalizedText
+        }
+
+        override fun hashCode(): Int {
+            var result = packageName.hashCode()
+            result = 31 * result + (title?.hashCode() ?: 0)
+            result = 31 * result + (normalizedText?.hashCode() ?: 0)
+            return result
+        }
+    }
 
     companion object {
         private const val TAG = "NotificationListener"
         private const val CACHE_CLEANUP_INTERVAL_MS = 60000L // Clean cache every minute
+        private const val FUZZY_SIMILARITY_THRESHOLD = 0.9 // 90% similarity for fuzzy matching
+
+        // Regex pattern to normalize text: removes punctuation and extra whitespace
+        private val NORMALIZATION_REGEX = "[•\\-_\\.,:;!?()\\[\\]{}\"']+".toRegex()
     }
 
     private var lastCacheCleanup = 0L
@@ -132,23 +153,100 @@ class NotificationListener : NotificationListenerService() {
     /**
      * Checks if a notification should be debounced (ignored because it's a duplicate).
      * Returns true if the same notification was seen recently, false otherwise.
+     *
+     * Uses a two-tier approach:
+     * 1. Exact match on normalized text (fast, O(1) lookup)
+     * 2. Fuzzy similarity check if no exact match found (slower, but catches near-duplicates)
      */
     private fun shouldDebounce(packageName: String, title: String?, text: String?): Boolean {
-        val key = NotificationKey(packageName, title, text)
         val now = System.currentTimeMillis()
         val debounceWindow = settings.debounceWindowMs
+        val normalizedText = normalizeText(text)
 
-        // Get last seen timestamp for this notification
+        // Create key with normalized text for exact matching
+        val key = NotificationKey(packageName, title, text, normalizedText)
+
+        // First tier: exact match on normalized text (O(1) lookup)
         val lastSeen = notificationCache[key]
-
-        return if (lastSeen != null && (now - lastSeen) < debounceWindow) {
-            // Notification is within debounce window, ignore it
-            true
-        } else {
-            // Update cache with current timestamp
-            notificationCache[key] = now
-            false
+        if (lastSeen != null && (now - lastSeen) < debounceWindow) {
+            // Exact match found within debounce window
+            Log.d(TAG, "Notification debounced (exact match): $packageName")
+            return true
         }
+
+        // Second tier: fuzzy matching for near-duplicates
+        // Only check if we have non-empty text to compare
+        if (!normalizedText.isNullOrBlank()) {
+            val matchingKey = findSimilarNotification(packageName, title, normalizedText, debounceWindow, now)
+            if (matchingKey != null) {
+                // Found a similar notification, update its timestamp and debounce
+                notificationCache[matchingKey] = now
+                Log.d(TAG, "Notification debounced (fuzzy match): $packageName - similarity detected")
+                return true
+            }
+        }
+
+        // No duplicate found, add to cache
+        notificationCache[key] = now
+        return false
+    }
+
+    /**
+     * Normalizes notification text by removing special characters and extra whitespace.
+     * This allows "text • more" and "text - more" to be considered identical.
+     */
+    private fun normalizeText(text: String?): String? {
+        if (text.isNullOrBlank()) return text
+        return text
+            .replace(NORMALIZATION_REGEX, " ") // Replace punctuation with spaces
+            .trim() // Remove leading/trailing whitespace
+            .replace("\\s+".toRegex(), " ") // Collapse multiple spaces into one
+            .lowercase() // Case-insensitive comparison
+    }
+
+    /**
+     * Finds a similar notification in the cache using Jaccard similarity on word tokens.
+     * Returns the matching key if found, null otherwise.
+     * After normalization, only checks notifications from the same package with same title.
+     */
+    private fun findSimilarNotification(
+        packageName: String,
+        title: String?,
+        normalizedText: String,
+        debounceWindow: Long,
+        now: Long
+    ): NotificationKey? {
+        // Tokenize the normalized text into words for Jaccard similarity
+        val currentTokens = normalizedText.split(" ").filter { it.isNotBlank() }.toSet()
+
+        // Only check recent notifications from same app with same title
+        for ((cachedKey, timestamp) in notificationCache) {
+            // Skip if outside debounce window
+            if (now - timestamp >= debounceWindow) continue
+
+            // Only compare notifications from same app with same title
+            if (cachedKey.packageName != packageName || cachedKey.title != title) continue
+
+            // Skip if no text to compare
+            val cachedNormalized = cachedKey.normalizedText
+            if (cachedNormalized.isNullOrBlank()) continue
+
+            // Calculate Jaccard similarity: |A ∩ B| / |A ∪ B|
+            val cachedTokens = cachedNormalized.split(" ").filter { it.isNotBlank() }.toSet()
+            val intersection = currentTokens.intersect(cachedTokens).size
+            val union = currentTokens.union(cachedTokens).size
+
+            if (union > 0) {
+                val similarity = intersection.toDouble() / union.toDouble()
+
+                if (similarity >= FUZZY_SIMILARITY_THRESHOLD) {
+                    Log.d(TAG, "Found similar notification (similarity: ${"%.2f".format(similarity * 100)}%)")
+                    return cachedKey
+                }
+            }
+        }
+
+        return null
     }
 
     /**
