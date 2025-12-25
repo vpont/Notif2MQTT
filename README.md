@@ -130,28 +130,35 @@ For displaying notifications on Linux desktop, check out **[mqtt2notif](https://
 
 ## Architecture
 
-```
-┌─────────────────────────────────────┐
-│   NotificationListenerService       │
-│   - Captures notifications          │
-│   - Filters excluded apps           │
-│   - Extracts importance             │
-└──────────────┬──────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│   MqttService (Foreground)          │
-│   - Maintains MQTT connection       │
-│   - Publishes messages              │
-│   - Automatic reconnection          │
-└──────────────┬──────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│   MQTT Broker                       │
-│   - Mosquitto / HiveMQ / etc        │
-│   - Any MQTT consumer               │
-└─────────────────────────────────────┘
+```plantuml
+@startuml
+title Notif2MQTT Architecture
+
+participant "NotificationListenerService" as NLS
+participant "MqttService" as MS
+participant "MQTT Broker" as Broker
+
+note over NLS
+- Captures notifications
+- Filters excluded apps
+- Extracts importance
+end note
+
+note over MS
+- Maintains MQTT connection
+- Publishes messages
+- Automatic reconnection
+end note
+
+note over Broker
+- Mosquitto / HiveMQ / etc
+- Any MQTT consumer
+end note
+
+NLS -> MS: Notification data
+MS -> Broker: MQTT message
+
+@enduml
 ```
 
 **Note**: For Linux desktop integration, see [mqtt2notif](https://github.com/vpont/mqtt2notif)
