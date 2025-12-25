@@ -294,9 +294,7 @@ class NotificationListener : NotificationListenerService() {
         return try {
             val drawable = packageManager.getApplicationIcon(packageName)
             val bitmap = drawableToBitmap(drawable)
-            // Resize to 128x128 with bilinear filtering for better quality
-            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, true)
-            bitmapToBase64(resizedBitmap)
+            bitmapToBase64(bitmap)
         } catch (e: Exception) {
             Log.e(TAG, "Error processing icon", e)
             null
@@ -378,12 +376,7 @@ class NotificationListener : NotificationListenerService() {
             }
 
             if (bitmap != null) {
-                // Resize to 256x256 and use JPEG compression (smaller than PNG)
-                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 256, 256, true)
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream)
-                val byteArray = byteArrayOutputStream.toByteArray()
-                return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+                return bitmapToBase64(bitmap)
             }
 
             null
