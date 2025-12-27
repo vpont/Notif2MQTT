@@ -67,6 +67,13 @@ class MainActivity : AppCompatActivity() {
             settings.skipNotificationsWhenScreenOn = isChecked
         }
 
+        // Load WiFi-only setting
+        val wifiOnlySwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.wifiOnlySwitch)
+        wifiOnlySwitch.isChecked = settings.wifiOnly
+        wifiOnlySwitch.setOnCheckedChangeListener { _, isChecked ->
+            settings.wifiOnly = isChecked
+        }
+
         // Save button
         findViewById<MaterialButton>(R.id.saveButton).setOnClickListener {
             saveSettings()

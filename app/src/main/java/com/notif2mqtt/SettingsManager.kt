@@ -35,6 +35,7 @@ class SettingsManager(context: Context) {
         private const val KEY_SERVICE_ENABLED = "service_enabled"
         private const val KEY_DEBOUNCE_WINDOW_MS = "debounce_window_ms"
         private const val KEY_SKIP_WHEN_SCREEN_ON = "skip_when_screen_on"
+        private const val KEY_WIFI_ONLY = "wifi_only"
 
         // Defaults (supports both tcp:// and ssl:// protocols)
         const val DEFAULT_BROKER = "tcp://192.168.1.100:1883"
@@ -77,6 +78,10 @@ class SettingsManager(context: Context) {
     var skipNotificationsWhenScreenOn: Boolean
         get() = prefs.getBoolean(KEY_SKIP_WHEN_SCREEN_ON, false)
         set(value) = prefs.edit().putBoolean(KEY_SKIP_WHEN_SCREEN_ON, value).apply()
+
+    var wifiOnly: Boolean
+        get() = prefs.getBoolean(KEY_WIFI_ONLY, false)
+        set(value) = prefs.edit().putBoolean(KEY_WIFI_ONLY, value).apply()
 
     // Excluded Apps
     var excludedApps: Set<String>

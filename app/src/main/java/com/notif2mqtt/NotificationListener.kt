@@ -1,6 +1,8 @@
 package com.notif2mqtt
 
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.PowerManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -86,6 +88,12 @@ class NotificationListener : NotificationListenerService() {
             // Check if we should skip notifications when screen is on
             if (settings.skipNotificationsWhenScreenOn && isScreenOn()) {
                 Log.d(TAG, "Screen is on and skip setting is enabled, ignoring notification")
+                return
+            }
+
+            // Check if we should only send over WiFi
+            if (settings.wifiOnly && !isConnectedToWifi()) {
+                Log.d(TAG, "WiFi-only mode enabled and not connected to WiFi, ignoring notification")
                 return
             }
 
@@ -406,5 +414,24 @@ class NotificationListener : NotificationListenerService() {
     private fun isScreenOn(): Boolean {
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
         return powerManager.isInteractive
+    }
+
+    /**
+     * Checks if the device is connected to a WiFi network.
+     * Returns true if connected to WiFi, false otherwise.
+     */
+    private fun isConnectedToWifi(): Boolean {
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        } else {
+            @Suppress("DEPRECATION")
+            val networkInfo = connectivityManager.activeNetworkInfo ?: return false
+            @Suppress("DEPRECATION")
+            return networkInfo.isConnected && networkInfo.type == ConnectivityManager.TYPE_WIFI
+        }
     }
 }

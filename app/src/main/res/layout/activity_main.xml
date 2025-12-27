@@ -296,14 +296,48 @@
                             android:textColor="?android:attr/textColorSecondary"/>
                     </LinearLayout>
 
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/skipScreenOnSwitch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
+                     <com.google.android.material.switchmaterial.SwitchMaterial
+                         android:id="@+id/skipScreenOnSwitch"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"/>
+                 </LinearLayout>
 
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:orientation="horizontal"
+                     android:gravity="center_vertical"
+                     android:paddingVertical="8dp">
+
+                     <LinearLayout
+                         android:layout_width="0dp"
+                         android:layout_height="wrap_content"
+                         android:layout_weight="1"
+                         android:orientation="vertical">
+
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/wifi_only"
+                             android:textSize="14sp"
+                             android:textStyle="bold"/>
+
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/wifi_only_hint"
+                             android:textSize="12sp"
+                             android:textColor="?android:attr/textColorSecondary"/>
+                     </LinearLayout>
+
+                     <com.google.android.material.switchmaterial.SwitchMaterial
+                         android:id="@+id/wifiOnlySwitch"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"/>
+                 </LinearLayout>
+
+             </LinearLayout>
+         </com.google.android.material.card.MaterialCardView>
 
         <!-- App Exclusions Section -->
         <com.google.android.material.card.MaterialCardView

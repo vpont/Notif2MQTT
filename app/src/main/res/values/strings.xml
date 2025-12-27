@@ -19,6 +19,8 @@
     <string name="notification_settings">Notification Settings</string>
     <string name="skip_when_screen_on">Skip when screen is on</string>
     <string name="skip_when_screen_on_hint">Don\'t send notifications when the device is actively being used</string>
+    <string name="wifi_only">WiFi only</string>
+    <string name="wifi_only_hint">Only send notifications when connected to WiFi</string>
 
     <!-- Permissions Status -->
     <string name="permissions">Permissions</string>
