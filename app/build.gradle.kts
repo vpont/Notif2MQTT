@@ -1,6 +1,3 @@
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 // Get version name from the latest git tag (e.g., "v1.2.3" -> "1.2.3")
 val gitVersionName: Provider<String> = providers.exec {
     commandLine("git", "describe", "--tags", "--abbrev=0")
@@ -20,7 +17,6 @@ val gitVersionCode: Provider<Int> = providers.exec {
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -48,8 +44,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_25
-        targetCompatibility = JavaVersion.VERSION_25
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {

@@ -108,14 +108,15 @@ Notifications are transmitted as JSON:
   "text": "New message",
   "timestamp": 1703001234567,
   "icon": "iVBORw0KGgo...",
+  "previewImage": "...base64...",
   "importance": 4,
   "urgency": "high",
   "category": "msg"
 }
 ```
 
-**Importance Levels** (Android): 0 (none) → 5 (max)
-**Urgency Mapping**: 4-5 = "high" (CRITICAL), 3 = "normal" (NORMAL), 1-2 = "low" (LOW), 0 = "minimal" (LOW)
+**Urgency Mapping**: 4-5 = "high" (CRITICAL), 3 = "normal" (NORMAL), 2 = "low" (LOW), 0-1 = "minimal" (LOW)
+**Optional Fields**: `icon` (Base64 PNG, 128x128), `previewImage` (Base64 JPEG, 256x256)
 
 ## Build System
 
@@ -124,17 +125,25 @@ Notifications are transmitted as JSON:
 - **Root**: `build.gradle.kts` - Kotlin, Android Gradle Plugin version management
 - **App Module**: `app/build.gradle.kts` - Dependencies, build types, product flavors
 - **Namespace**: `com.notif2mqtt`
-- **Target SDK**: 34 (Android 14), **Min SDK**: 24 (Android 7.0)
-- **Android Gradle Plugin**: 8.5.2
-- **Kotlin Version**: 2.2.21, **JVM Target**: 17
+- **Target SDK**: 36 (Android 16), **Min SDK**: 24 (Android 7.0)
+- **Build Tools**: 36.1.0
+- **Android Gradle Plugin**: 9.0.0
+- **Kotlin**: Built-in Kotlin (AGP 9.0), **JVM Target**: 17
 
 **Key Dependencies**:
 
-- `org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5` - MQTT client
-- `androidx.appcompat:appcompat` - Core AndroidX libraries
-- `com.google.android.material:material` - Material Design 3
-- `androidx.recyclerview:recyclerview` - List UI component
+- `androidx.core:core-ktx:1.12.0` - AndroidX core extensions
+- `androidx.appcompat:appcompat:1.6.1` - Core AndroidX libraries
+- `com.google.android.material:material:1.11.0` - Material Design 3
+- `androidx.constraintlayout:constraintlayout:2.1.4` - Layouts
+- `androidx.recyclerview:recyclerview:1.3.2` - List UI component
+- `androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0` - ViewModel
+- `androidx.lifecycle:lifecycle-runtime-ktx:2.7.0` - Lifecycle runtime
+- `org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3` - Coroutines
 - `androidx.security:security-crypto:1.1.0-alpha06` - Encrypted preferences for sensitive credentials
+- `org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5` - MQTT client
+- `org.eclipse.paho:org.eclipse.paho.android.service:1.1.1` - Android MQTT service
+- `org.json:json:20231013` - JSON
 
 **Optimization**:
 
@@ -226,7 +235,7 @@ app/src/main/
 **Latest Changes**:
 
 - **TLS/SSL Support**: Added secure MQTT connections with `ssl://` protocol support and self-signed certificate handling
-- **Build System Updates**: Updated Android Gradle Plugin to 8.5.2 for Gradle 10 compatibility
+- **Build System Updates**: Updated Android Gradle Plugin to 9.0.0 with built-in Kotlin (JDK 17)
 - **Enhanced UI**: Added TLS connection status indicators and improved broker URL validation
 
 ## Related Projects
