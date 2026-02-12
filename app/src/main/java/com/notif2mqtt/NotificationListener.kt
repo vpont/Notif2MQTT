@@ -22,6 +22,8 @@ class NotificationListener : NotificationListenerService() {
 
     // Debouncing cache: stores timestamp of last notification with same key
     private val notificationCache = mutableMapOf<NotificationKey, Long>()
+    private var lastNotificationKey: NotificationKey? = null
+    private var lastNotificationTimestamp = 0L
 
     // Data class to uniquely identify a notification (excluding timestamp and icon)
     private data class NotificationKey(
@@ -134,7 +136,13 @@ class NotificationListener : NotificationListenerService() {
                 previewImage = previewImageBase64
             )
 
+
             // Check if this notification should be debounced
+            if (shouldDebounceEmptyTextUpdate(packageName, title, text)) {
+                Log.d(TAG, "Notification debounced (empty text update): ${notificationData.appName} - ${notificationData.title}")
+                return
+            }
+
             if (shouldDebounce(packageName, title, text)) {
                 Log.d(TAG, "Notification debounced: ${notificationData.appName} - ${notificationData.title}")
                 return
@@ -178,7 +186,6 @@ class NotificationListener : NotificationListenerService() {
         val lastSeen = notificationCache[key]
         if (lastSeen != null && (now - lastSeen) < debounceWindow) {
             // Exact match found within debounce window
-            Log.d(TAG, "Notification debounced (exact match): $packageName")
             return true
         }
 
@@ -189,13 +196,32 @@ class NotificationListener : NotificationListenerService() {
             if (matchingKey != null) {
                 // Found a similar notification, update its timestamp and debounce
                 notificationCache[matchingKey] = now
-                Log.d(TAG, "Notification debounced (fuzzy match): $packageName - similarity detected")
                 return true
             }
         }
 
         // No duplicate found, add to cache
         notificationCache[key] = now
+        lastNotificationKey = key
+        lastNotificationTimestamp = now
+        return false
+    }
+
+    /**
+     * Debounces updates where the notification text is empty and the immediately
+     * previous notification from the same package was seen within the debounce window.
+     */
+    private fun shouldDebounceEmptyTextUpdate(packageName: String, title: String?, text: String?): Boolean {
+        if (!text.isNullOrBlank()) return false
+        val now = System.currentTimeMillis()
+        val debounceWindow = settings.debounceWindowMs
+
+        val previousKey = lastNotificationKey
+        if (previousKey != null && previousKey.packageName == packageName && (now - lastNotificationTimestamp) < debounceWindow) {
+            notificationCache[previousKey] = now
+            return true
+        }
+
         return false
     }
 
