@@ -50,17 +50,18 @@ jobs:
 
       - name: Rename APK
         run: |
+          VERSION=${{ github.ref_name }}
           if [ -f "app/build/outputs/apk/release/app-release-unsigned-signed.apk" ]; then
-            mv app/build/outputs/apk/release/app-release-unsigned-signed.apk app/build/outputs/apk/release/Notif2MQTT-release.apk
+            mv app/build/outputs/apk/release/app-release-unsigned-signed.apk app/build/outputs/apk/release/Notif2MQTT-${VERSION}.apk
           elif [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
-            mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/Notif2MQTT-release-unsigned.apk
+            mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/Notif2MQTT-${VERSION}-unsigned.apk
           fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            app/build/outputs/apk/release/Notif2MQTT-release*.apk
+            app/build/outputs/apk/release/Notif2MQTT-*.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
