@@ -37,14 +37,14 @@
                         android:src="@drawable/ic_status"
                         android:layout_marginEnd="8dp"
                         android:layout_marginRight="8dp"
-                        android:layout_gravity="center_vertical"/>
+                        android:layout_gravity="center_vertical" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/status"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView
@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/disconnected"
-                    android:textSize="14sp"/>
+                    android:textSize="14sp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -83,37 +83,37 @@
                         android:src="@drawable/ic_mqtt_settings"
                         android:layout_marginEnd="8dp"
                         android:layout_marginRight="8dp"
-                        android:layout_gravity="center_vertical"/>
+                        android:layout_gravity="center_vertical" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/mqtt_settings"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-                 <com.google.android.material.textfield.TextInputLayout
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:layout_marginBottom="4dp"
-                     android:hint="@string/broker_url">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:hint="@string/broker_url">
 
-                     <com.google.android.material.textfield.TextInputEditText
-                         android:id="@+id/brokerInput"
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:inputType="textUri"
-                         android:singleLine="true"/>
-                 </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/brokerInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textUri"
+                        android:singleLine="true" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                 <TextView
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:layout_marginBottom="8dp"
-                     android:text="@string/broker_help"
-                     android:textSize="12sp"
-                     android:textColor="?android:attr/textColorSecondary"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/broker_help"
+                    android:textSize="12sp"
+                    android:textColor="?android:attr/textColorSecondary" />
 
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -127,7 +127,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:singleLine="true"/>
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -141,7 +141,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textPassword"
-                        android:singleLine="true"/>
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -150,7 +150,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/save_settings"
                     app:icon="@drawable/ic_save"
-                    app:iconGravity="textStart"/>
+                    app:iconGravity="textStart" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -181,14 +181,14 @@
                         android:src="@drawable/ic_permissions"
                         android:layout_marginEnd="8dp"
                         android:layout_marginRight="8dp"
-                        android:layout_gravity="center_vertical"/>
+                        android:layout_gravity="center_vertical" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/permissions"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -208,7 +208,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/notification_access"
                             android:textSize="14sp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/permissionStatusText"
@@ -216,7 +216,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/permission_not_granted"
                             android:textSize="12sp"
-                            android:textColor="#F44336"/>
+                            android:textColor="#F44336" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -226,7 +226,7 @@
                         android:text="@string/open_settings"
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         app:icon="@drawable/ic_settings"
-                        app:iconGravity="textStart"/>
+                        app:iconGravity="textStart" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -258,14 +258,14 @@
                         android:src="@drawable/ic_settings"
                         android:layout_marginEnd="8dp"
                         android:layout_marginRight="8dp"
-                        android:layout_gravity="center_vertical"/>
+                        android:layout_gravity="center_vertical" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/notification_settings"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -286,58 +286,58 @@
                             android:layout_height="wrap_content"
                             android:text="@string/skip_when_screen_on"
                             android:textSize="14sp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/skip_when_screen_on_hint"
                             android:textSize="12sp"
-                            android:textColor="?android:attr/textColorSecondary"/>
+                            android:textColor="?android:attr/textColorSecondary" />
                     </LinearLayout>
 
-                     <com.google.android.material.switchmaterial.SwitchMaterial
-                         android:id="@+id/skipScreenOnSwitch"
-                         android:layout_width="wrap_content"
-                         android:layout_height="wrap_content"/>
-                 </LinearLayout>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/skipScreenOnSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
 
-                 <LinearLayout
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:orientation="horizontal"
-                     android:gravity="center_vertical"
-                     android:paddingVertical="8dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="8dp">
 
-                     <LinearLayout
-                         android:layout_width="0dp"
-                         android:layout_height="wrap_content"
-                         android:layout_weight="1"
-                         android:orientation="vertical">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                         <TextView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:text="@string/wifi_only"
-                             android:textSize="14sp"
-                             android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/wifi_only"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
 
-                         <TextView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:text="@string/wifi_only_hint"
-                             android:textSize="12sp"
-                             android:textColor="?android:attr/textColorSecondary"/>
-                     </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/wifi_only_hint"
+                            android:textSize="12sp"
+                            android:textColor="?android:attr/textColorSecondary" />
+                    </LinearLayout>
 
-                     <com.google.android.material.switchmaterial.SwitchMaterial
-                         android:id="@+id/wifiOnlySwitch"
-                         android:layout_width="wrap_content"
-                         android:layout_height="wrap_content"/>
-                 </LinearLayout>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/wifiOnlySwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
 
-             </LinearLayout>
-         </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- App Exclusions Section -->
         <com.google.android.material.card.MaterialCardView
@@ -364,14 +364,14 @@
                         android:src="@drawable/ic_app_exclusions"
                         android:layout_marginEnd="8dp"
                         android:layout_marginRight="8dp"
-                        android:layout_gravity="center_vertical"/>
+                        android:layout_gravity="center_vertical" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/app_exclusions"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView
@@ -379,13 +379,13 @@
                     android:layout_height="wrap_content"
                     android:text="@string/exclude_apps_hint"
                     android:textSize="12sp"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="12dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/appsRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
-                    android:scrollbars="vertical"/>
+                    android:scrollbars="vertical" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

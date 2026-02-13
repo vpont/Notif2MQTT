@@ -6,7 +6,8 @@
     <string name="mqtt_settings">MQTT Settings</string>
     <string name="broker_url">Broker URL</string>
     <string name="broker_hint">tcp://192.168.1.100:1883 or ssl://192.168.1.100:8883</string>
-    <string name="broker_help">Use tcp:// for unencrypted connections or ssl:// for encrypted TLS connections</string>
+    <string name="broker_help">Use tcp:// for unencrypted connections or ssl:// for encrypted TLS
+        connections</string>
     <string name="username">Username (optional)</string>
     <string name="password">Password (optional)</string>
     <string name="save_settings">Save Settings</string>
@@ -18,7 +19,8 @@
     <!-- Notification Settings -->
     <string name="notification_settings">Notification Settings</string>
     <string name="skip_when_screen_on">Skip when screen is on</string>
-    <string name="skip_when_screen_on_hint">Don\'t send notifications when the device is actively being used</string>
+    <string name="skip_when_screen_on_hint">Don\'t send notifications when the device is actively
+        being used</string>
     <string name="wifi_only">WiFi only</string>
     <string name="wifi_only_hint">Only send notifications when connected to WiFi</string>
 
