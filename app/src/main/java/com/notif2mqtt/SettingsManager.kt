@@ -2,22 +2,13 @@ package com.notif2mqtt
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 
 class SettingsManager(context: Context) {
+    private val appContext = context.applicationContext
     private val prefs: SharedPreferences by lazy {
-        val masterKey = MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-        EncryptedSharedPreferences.create(
-            context,
-            PREFS_NAME,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
+    private val crypto = PrefsCrypto(appContext)
 
     companion object {
         private const val PREFS_NAME = "notif2mqtt_settings"
@@ -45,23 +36,23 @@ class SettingsManager(context: Context) {
 
     // MQTT Configuration
     var mqttBroker: String
-        get() = prefs.getString(KEY_MQTT_BROKER, DEFAULT_BROKER) ?: DEFAULT_BROKER
-        set(value) = prefs.edit().putString(KEY_MQTT_BROKER, value).apply()
+        get() = getEncryptedString(KEY_MQTT_BROKER, DEFAULT_BROKER)
+        set(value) = setEncryptedString(KEY_MQTT_BROKER, value)
 
     val mqttTopic: String
         get() = DEFAULT_TOPIC
 
     var mqttUsername: String
-        get() = prefs.getString(KEY_MQTT_USERNAME, "") ?: ""
-        set(value) = prefs.edit().putString(KEY_MQTT_USERNAME, value).apply()
+        get() = getEncryptedString(KEY_MQTT_USERNAME, "")
+        set(value) = setEncryptedString(KEY_MQTT_USERNAME, value)
 
     var mqttPassword: String
-        get() = prefs.getString(KEY_MQTT_PASSWORD, "") ?: ""
-        set(value) = prefs.edit().putString(KEY_MQTT_PASSWORD, value).apply()
+        get() = getEncryptedString(KEY_MQTT_PASSWORD, "")
+        set(value) = setEncryptedString(KEY_MQTT_PASSWORD, value)
 
     var mqttClientId: String
-        get() = prefs.getString(KEY_MQTT_CLIENT_ID, generateClientId()) ?: generateClientId()
-        set(value) = prefs.edit().putString(KEY_MQTT_CLIENT_ID, value).apply()
+        get() = getEncryptedString(KEY_MQTT_CLIENT_ID, generateClientId())
+        set(value) = setEncryptedString(KEY_MQTT_CLIENT_ID, value)
 
     var mqttAcceptSelfSignedCerts: Boolean
         get() = prefs.getBoolean(KEY_MQTT_ACCEPT_SELF_SIGNED_CERTS, true) // Default to true for compatibility
@@ -104,5 +95,26 @@ class SettingsManager(context: Context) {
 
     private fun generateClientId(): String {
         return "android_${android.os.Build.MODEL.replace(" ", "_")}_${System.currentTimeMillis()}"
+    }
+
+    private fun getEncryptedString(key: String, default: String): String {
+        val stored = prefs.getString(key, null)
+        if (stored.isNullOrEmpty()) {
+            return default
+        }
+        val decrypted = runCatching { crypto.decrypt(stored) }.getOrNull()
+        if (decrypted != null) {
+            return decrypted
+        }
+        return default
+    }
+
+    private fun setEncryptedString(key: String, value: String) {
+        val encrypted = runCatching { crypto.encrypt(value) }.getOrNull()
+        if (encrypted != null) {
+            prefs.edit().putString(key, encrypted).apply()
+        } else {
+            prefs.edit().putString(key, value).apply()
+        }
     }
 }

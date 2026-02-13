@@ -67,7 +67,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     // Security
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("com.google.crypto.tink:tink-android:1.20.0")
 
     // MQTT Client (lightweight)
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
