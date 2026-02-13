@@ -6,6 +6,6 @@
     android:viewportHeight="24">
     <!-- Shield with keyhole -->
     <path
-        android:fillColor="#666666"
+        android:fillColor="#FFFFFF"
         android:pathData="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3.18L19,6.5V11C19,15.08 16.45,19.14 12,20.81C7.55,19.14 5,15.08 5,11V6.5L12,3.18M12,7A3,3 0 0,0 9,10A3,3 0 0,0 12,13A3,3 0 0,0 15,10A3,3 0 0,0 12,7M12,9A1,1 0 0,1 13,10A1,1 0 0,1 12,11A1,1 0 0,1 11,10A1,1 0 0,1 12,9Z" />
 </vector>
