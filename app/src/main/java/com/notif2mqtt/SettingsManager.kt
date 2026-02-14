@@ -12,7 +12,7 @@ class SettingsManager(context: Context) {
 
     companion object {
         private const val PREFS_NAME = "notif2mqtt_settings"
-        
+
         // MQTT Settings
         private const val KEY_MQTT_BROKER = "mqtt_broker"
         private const val KEY_MQTT_TOPIC = "mqtt_topic"
@@ -20,27 +20,25 @@ class SettingsManager(context: Context) {
         private const val KEY_MQTT_PASSWORD = "mqtt_password"
         private const val KEY_MQTT_CLIENT_ID = "mqtt_client_id"
         private const val KEY_MQTT_ACCEPT_SELF_SIGNED_CERTS = "mqtt_accept_self_signed_certs"
-        
+
         // App Settings
         private const val KEY_EXCLUDED_APPS = "excluded_apps"
-        private const val KEY_SERVICE_ENABLED = "service_enabled"
         private const val KEY_DEBOUNCE_WINDOW_MS = "debounce_window_ms"
         private const val KEY_SKIP_WHEN_SCREEN_ON = "skip_when_screen_on"
         private const val KEY_WIFI_ONLY = "wifi_only"
 
         // Defaults (supports both tcp:// and ssl:// protocols)
-        const val DEFAULT_BROKER = "tcp://192.168.1.100:1883"
         const val DEFAULT_TOPIC = "notif2mqtt/notifications"
         const val DEFAULT_DEBOUNCE_WINDOW_MS = 2000L // 2 seconds
     }
 
     // MQTT Configuration
-    var mqttBroker: String
-        get() = getEncryptedString(KEY_MQTT_BROKER, DEFAULT_BROKER)
-        set(value) = setEncryptedString(KEY_MQTT_BROKER, value)
-
     val mqttTopic: String
         get() = DEFAULT_TOPIC
+
+    var mqttBroker: String
+        get() = getEncryptedString(KEY_MQTT_BROKER, "")
+        set(value) = setEncryptedString(KEY_MQTT_BROKER, value)
 
     var mqttUsername: String
         get() = getEncryptedString(KEY_MQTT_USERNAME, "")
@@ -57,10 +55,6 @@ class SettingsManager(context: Context) {
     var mqttAcceptSelfSignedCerts: Boolean
         get() = prefs.getBoolean(KEY_MQTT_ACCEPT_SELF_SIGNED_CERTS, true) // Default to true for compatibility
         set(value) = prefs.edit().putBoolean(KEY_MQTT_ACCEPT_SELF_SIGNED_CERTS, value).apply()
-
-    var serviceEnabled: Boolean
-        get() = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
-        set(value) = prefs.edit().putBoolean(KEY_SERVICE_ENABLED, value).apply()
 
     var debounceWindowMs: Long
         get() = prefs.getLong(KEY_DEBOUNCE_WINDOW_MS, DEFAULT_DEBOUNCE_WINDOW_MS)
@@ -102,19 +96,12 @@ class SettingsManager(context: Context) {
         if (stored.isNullOrEmpty()) {
             return default
         }
-        val decrypted = runCatching { crypto.decrypt(stored) }.getOrNull()
-        if (decrypted != null) {
-            return decrypted
-        }
-        return default
+        check(crypto.isEncrypted(stored)) { "Unencrypted value stored for $key" }
+        return crypto.decrypt(stored)
     }
 
     private fun setEncryptedString(key: String, value: String) {
-        val encrypted = runCatching { crypto.encrypt(value) }.getOrNull()
-        if (encrypted != null) {
-            prefs.edit().putString(key, encrypted).apply()
-        } else {
-            prefs.edit().putString(key, value).apply()
-        }
+        val encrypted = crypto.encrypt(value)
+        prefs.edit().putString(key, encrypted).apply()
     }
 }

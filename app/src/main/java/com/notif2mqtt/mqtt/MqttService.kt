@@ -23,15 +23,19 @@ class MqttService : Service() {
     private lateinit var mqttManager: MqttManager
     private var wakeLock: PowerManager.WakeLock? = null
     private val serviceScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default + kotlinx.coroutines.SupervisorJob())
-    
+
     companion object {
         private const val TAG = "MqttService"
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "mqtt_service_channel"
         const val ACTION_PUBLISH = "com.notif2mqtt.ACTION_PUBLISH"
         const val EXTRA_MESSAGE = "message"
-        
+
         fun startService(context: Context) {
+            val settings = com.notif2mqtt.SettingsManager(context)
+            if (settings.mqttBroker.isBlank()) {
+                return
+            }
             val intent = Intent(context, MqttService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
@@ -39,13 +43,21 @@ class MqttService : Service() {
                 context.startService(intent)
             }
         }
-        
+
         fun stopService(context: Context) {
+            val settings = com.notif2mqtt.SettingsManager(context)
+            if (settings.mqttBroker.isBlank()) {
+                return
+            }
             val intent = Intent(context, MqttService::class.java)
             context.stopService(intent)
         }
-        
+
         fun publishMessage(context: Context, message: String) {
+            val settings = com.notif2mqtt.SettingsManager(context)
+            if (settings.mqttBroker.isBlank()) {
+                return
+            }
             val intent = Intent(context, MqttService::class.java).apply {
                 action = ACTION_PUBLISH
                 putExtra(EXTRA_MESSAGE, message)
@@ -68,6 +80,12 @@ class MqttService : Service() {
         Log.d(TAG, "Service created")
 
         mqttManager = MqttManager(this)
+
+        val settings = com.notif2mqtt.SettingsManager(this)
+        if (settings.mqttBroker.isBlank()) {
+            stopSelf()
+            return
+        }
 
         // Acquire wake lock to keep service running (with timeout for battery optimization)
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -155,7 +173,7 @@ class MqttService : Service() {
                 description = getString(R.string.service_channel_description)
                 setShowBadge(false)
             }
-            
+
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }

@@ -31,7 +31,7 @@ data class NotificationData(
         }
         return json.toString()
     }
-    
+
     private fun getUrgencyLevel(): String {
         return when {
             importance >= 4 -> "high"      // IMPORTANCE_HIGH or MAX

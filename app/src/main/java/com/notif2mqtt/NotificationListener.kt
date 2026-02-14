@@ -53,6 +53,7 @@ class NotificationListener : NotificationListenerService() {
         private const val TAG = "NotificationListener"
         private const val CACHE_CLEANUP_INTERVAL_MS = 60000L // Clean cache every minute
         private const val FUZZY_SIMILARITY_THRESHOLD = 0.9 // 90% similarity for fuzzy matching
+        private const val SYSTEM_UI_PACKAGE = "com.android.systemui"
 
         // Regex pattern to normalize text: removes punctuation and extra whitespace
         private val NORMALIZATION_REGEX = "[•\\-_\\.,:;!?()\\[\\]{}\"']+".toRegex()
@@ -68,9 +69,8 @@ class NotificationListener : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         try {
-            // Check if service is enabled
-            if (!settings.serviceEnabled) {
-                Log.d(TAG, "Service disabled, ignoring notification")
+            if (settings.mqttBroker.isBlank()) {
+                Log.d(TAG, "User config not set, ignoring notification")
                 return
             }
 
@@ -78,6 +78,11 @@ class NotificationListener : NotificationListenerService() {
 
             // Ignore our own notifications
             if (packageName == applicationContext.packageName) {
+                return
+            }
+
+            // Ignore System UI notifications (boot, charging, etc.)
+            if (packageName == SYSTEM_UI_PACKAGE) {
                 return
             }
 

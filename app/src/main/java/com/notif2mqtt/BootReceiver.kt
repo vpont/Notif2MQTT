@@ -14,7 +14,7 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             Log.d(TAG, "Boot completed, starting MQTT service")
-            
+
             // Start MQTT service on boot
             MqttService.startService(context)
         }

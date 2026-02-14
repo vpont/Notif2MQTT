@@ -52,13 +52,18 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updatePermissionStatus()
+        startMqttServiceIfConfigured()
     }
 
     private fun setupViews() {
         // Load current settings
-        findViewById<TextInputEditText>(R.id.brokerInput).setText(settings.mqttBroker)
-        findViewById<TextInputEditText>(R.id.usernameInput).setText(settings.mqttUsername)
-        findViewById<TextInputEditText>(R.id.passwordInput).setText(settings.mqttPassword)
+        try {
+            findViewById<TextInputEditText>(R.id.brokerInput).setText(settings.mqttBroker)
+            findViewById<TextInputEditText>(R.id.usernameInput).setText(settings.mqttUsername)
+            findViewById<TextInputEditText>(R.id.passwordInput).setText(settings.mqttPassword)
+        } catch (e: Exception) {
+            Toast.makeText(this, R.string.encryption_failed, Toast.LENGTH_LONG).show()
+        }
 
         // Load screen-on skip setting
         val skipScreenOnSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.skipScreenOnSwitch)
@@ -92,9 +97,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveSettings() {
-        val broker = findViewById<TextInputEditText>(R.id.brokerInput).text.toString()
-        val username = findViewById<TextInputEditText>(R.id.usernameInput).text.toString()
-        val password = findViewById<TextInputEditText>(R.id.passwordInput).text.toString()
+        val broker = findViewById<TextInputEditText>(R.id.brokerInput).text.toString().trim()
+        val username = findViewById<TextInputEditText>(R.id.usernameInput).text.toString().trim()
+        val password = findViewById<TextInputEditText>(R.id.passwordInput).text.toString().trim()
 
         if (broker.isEmpty()) {
             Toast.makeText(this, getString(R.string.broker_required), Toast.LENGTH_SHORT).show()
@@ -107,9 +112,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        settings.mqttBroker = broker
-        settings.mqttUsername = username
-        settings.mqttPassword = password
+        try {
+            settings.mqttBroker = broker
+            settings.mqttUsername = username
+            settings.mqttPassword = password
+        } catch (e: Exception) {
+            Toast.makeText(this, R.string.encryption_failed, Toast.LENGTH_LONG).show()
+            return
+        }
 
         Toast.makeText(this, R.string.settings_saved, Toast.LENGTH_SHORT).show()
 
@@ -135,8 +145,8 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
 
-            // Check port (optional, but if specified should be valid)
-            if (port != -1 && (port < 1 || port > 65535)) {
+            // Check port
+            if (port == -1 || port < 1 || port > 65535) {
                 return false
             }
 
@@ -164,6 +174,13 @@ class MainActivity : AppCompatActivity() {
     private fun openNotificationSettings() {
         val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
         startActivity(intent)
+    }
+
+    private fun startMqttServiceIfConfigured() {
+        if (settings.mqttBroker.isBlank()) {
+            return
+        }
+        MqttService.startService(this)
     }
 
     private fun loadInstalledApps() {
@@ -209,7 +226,14 @@ class MainActivity : AppCompatActivity() {
     private fun updateConnectionStatus(state: ConnectionState) {
         val statusText = when (state) {
             ConnectionState.CONNECTING -> getString(R.string.connecting)
-            ConnectionState.CONNECTED -> if (settings.mqttBroker.startsWith("ssl://")) getString(R.string.connected_tls) else getString(R.string.connected)
+            ConnectionState.CONNECTED -> {
+                val useTls = try {
+                    settings.mqttBroker.startsWith("ssl://")
+                } catch (e: Exception) {
+                    false
+                }
+                if (useTls) getString(R.string.connected_tls) else getString(R.string.connected)
+            }
             ConnectionState.DISCONNECTED -> getString(R.string.disconnected)
             ConnectionState.ERROR -> getString(R.string.error)
         }

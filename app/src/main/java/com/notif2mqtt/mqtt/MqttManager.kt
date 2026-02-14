@@ -180,16 +180,16 @@ class MqttManager(private val context: Context) {
                 Log.w(TAG, "Cannot publish: MQTT client not connected")
                 return
             }
-            
+
             val topic = settings.mqttTopic
             val mqttMessage = MqttMessage(message.toByteArray()).apply {
                 qos = QOS
                 isRetained = false
             }
-            
+
             mqttClient?.publish(topic, mqttMessage)
             Log.d(TAG, "Published message to topic: $topic")
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to publish message", e)
         }

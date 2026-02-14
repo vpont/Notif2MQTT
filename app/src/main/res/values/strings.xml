@@ -5,7 +5,6 @@
     <!-- Main Activity -->
     <string name="mqtt_settings">MQTT Settings</string>
     <string name="broker_url">Broker URL</string>
-    <string name="broker_hint">tcp://192.168.1.100:1883 or ssl://192.168.1.100:8883</string>
     <string name="broker_help">Use tcp:// for unencrypted connections or ssl:// for encrypted TLS
         connections</string>
     <string name="username">Username (optional)</string>
@@ -43,6 +42,7 @@
     <!-- Validation Messages -->
     <string name="broker_required">Broker is required</string>
     <string name="invalid_broker_url">Invalid broker URL. Use tcp://host:port or ssl://host:port</string>
+    <string name="encryption_failed">Secure storage is unavailable. Settings were not saved.</string>
 
     <!-- Service Notification -->
     <string name="service_channel_name">MQTT Service</string>
