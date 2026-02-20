@@ -33,8 +33,9 @@ class SettingsManager(context: Context) {
     }
 
     // MQTT Configuration
-    val mqttTopic: String
-        get() = DEFAULT_TOPIC
+    var mqttTopic: String
+        get() = getEncryptedString(KEY_MQTT_TOPIC, DEFAULT_TOPIC)
+        set(value) = setEncryptedString(KEY_MQTT_TOPIC, value)
 
     var mqttBroker: String
         get() = getEncryptedString(KEY_MQTT_BROKER, "")

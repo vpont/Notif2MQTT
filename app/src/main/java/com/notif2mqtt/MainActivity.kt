@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         // Load current settings
         try {
             findViewById<TextInputEditText>(R.id.brokerInput).setText(settings.mqttBroker)
+            findViewById<TextInputEditText>(R.id.topicInput).setText(settings.mqttTopic)
             findViewById<TextInputEditText>(R.id.usernameInput).setText(settings.mqttUsername)
             findViewById<TextInputEditText>(R.id.passwordInput).setText(settings.mqttPassword)
         } catch (e: Exception) {
@@ -98,6 +99,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun saveSettings() {
         val broker = findViewById<TextInputEditText>(R.id.brokerInput).text.toString().trim()
+        val topicInput = findViewById<TextInputEditText>(R.id.topicInput).text.toString().trim()
         val username = findViewById<TextInputEditText>(R.id.usernameInput).text.toString().trim()
         val password = findViewById<TextInputEditText>(R.id.passwordInput).text.toString().trim()
 
@@ -114,6 +116,11 @@ class MainActivity : AppCompatActivity() {
 
         try {
             settings.mqttBroker = broker
+            settings.mqttTopic = if (topicInput.isBlank()) {
+                SettingsManager.DEFAULT_TOPIC
+            } else {
+                topicInput
+            }
             settings.mqttUsername = username
             settings.mqttPassword = password
         } catch (e: Exception) {
