@@ -108,8 +108,19 @@ class NotificationListener : NotificationListenerService() {
             val notification = sbn.notification
             val extras = notification.extras
 
-            val title = extras.getCharSequence("android.title")?.toString()
-            val text = extras.getCharSequence("android.text")?.toString()
+            val title = firstNonBlankText(
+                extras.getCharSequence("android.title")?.toString(),
+                extras.getCharSequence("android.title.big")?.toString()
+            )
+            val textLines = extras.getCharSequenceArray("android.textLines")
+                ?.mapNotNull { it?.toString()?.trim() }
+                ?.filter { it.isNotBlank() }
+                ?.joinToString("\n")
+            val text = firstNonBlankText(
+                extras.getCharSequence("android.bigText")?.toString(),
+                extras.getCharSequence("android.text")?.toString(),
+                textLines
+            )
             val category = notification.category
             val appName = getAppName(packageName)
             val iconBase64 = getNotificationIcon(notification, packageName)
@@ -241,6 +252,14 @@ class NotificationListener : NotificationListenerService() {
             .trim() // Remove leading/trailing whitespace
             .replace("\\s+".toRegex(), " ") // Collapse multiple spaces into one
             .lowercase() // Case-insensitive comparison
+    }
+
+    private fun firstNonBlankText(vararg candidates: String?): String? {
+        for (candidate in candidates) {
+            val value = candidate?.trim()
+            if (!value.isNullOrBlank()) return value
+        }
+        return null
     }
 
     /**
