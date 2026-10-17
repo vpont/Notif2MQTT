@@ -1,5 +1,6 @@
 package com.notif2mqtt
 
+import android.app.Notification
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -24,6 +25,9 @@ class NotificationListener : NotificationListenerService() {
     private val notificationCache = mutableMapOf<NotificationKey, Long>()
     private var lastNotificationKey: NotificationKey? = null
     private var lastNotificationTimestamp = 0L
+
+    // Keys of ongoing call notifications already forwarded (cleared when the call ends)
+    private val notifiedCalls = mutableSetOf<String>()
 
     // Data class to uniquely identify a notification (excluding timestamp and icon)
     private data class NotificationKey(
@@ -54,6 +58,7 @@ class NotificationListener : NotificationListenerService() {
         private const val CACHE_CLEANUP_INTERVAL_MS = 60000L // Clean cache every minute
         private const val FUZZY_SIMILARITY_THRESHOLD = 0.9 // 90% similarity for fuzzy matching
         private const val SYSTEM_UI_PACKAGE = "com.android.systemui"
+        private const val DEFAULT_IMPORTANCE = 3 // IMPORTANCE_DEFAULT
 
         // Regex pattern to normalize text: removes punctuation and extra whitespace
         private val NORMALIZATION_REGEX = "[•\\-_\\.,:;!?()\\[\\]{}\"']+".toRegex()
@@ -67,7 +72,7 @@ class NotificationListener : NotificationListenerService() {
         Log.d(TAG, "NotificationListener service created")
     }
 
-    override fun onNotificationPosted(sbn: StatusBarNotification) {
+    override fun onNotificationPosted(sbn: StatusBarNotification, rankingMap: RankingMap) {
         try {
             if (settings.mqttBroker.isBlank()) {
                 Log.d(TAG, "User config not set, ignoring notification")
@@ -108,6 +113,17 @@ class NotificationListener : NotificationListenerService() {
             val notification = sbn.notification
             val extras = notification.extras
 
+            // Summaries only repeat what the individual notifications already said
+            if ((notification.flags and Notification.FLAG_GROUP_SUMMARY) != 0) {
+                Log.d(TAG, "Group summary ignored: $packageName")
+                return
+            }
+
+            if (shouldSkipOngoing(sbn)) {
+                Log.d(TAG, "Ongoing/progress notification ignored: $packageName")
+                return
+            }
+
             val title = firstNonBlankText(
                 extras.getCharSequence("android.title")?.toString(),
                 extras.getCharSequence("android.title.big")?.toString()
@@ -126,18 +142,13 @@ class NotificationListener : NotificationListenerService() {
             val iconBase64 = getNotificationIcon(notification, packageName)
             val previewImageBase64 = getPreviewImage(notification)
 
-            // Extract importance
-            val importance = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                notification.channelId?.let { channelId ->
-                    try {
-                        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
-                        notificationManager.getNotificationChannel(channelId)?.importance ?: 3
-                    } catch (e: Exception) {
-                        3 // Default importance
-                    }
-                } ?: 3
+            // Effective importance as ranked by the system (NotificationManager only
+            // exposes the channels of our own package, so it can't be used here)
+            val ranking = Ranking()
+            val importance = if (rankingMap.getRanking(sbn.key, ranking) && ranking.importance >= 0) {
+                ranking.importance
             } else {
-                3 // Default for older Android versions
+                DEFAULT_IMPORTANCE
             }
 
             // Create notification data object
@@ -178,7 +189,7 @@ class NotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        // Optional: Handle notification removal if needed
+        notifiedCalls.remove(sbn.key)
         Log.d(TAG, "Notification removed: ${sbn.packageName}")
     }
 
@@ -252,6 +263,24 @@ class NotificationListener : NotificationListenerService() {
             .trim() // Remove leading/trailing whitespace
             .replace("\\s+".toRegex(), " ") // Collapse multiple spaces into one
             .lowercase() // Case-insensitive comparison
+    }
+
+    /**
+     * Ongoing notifications (media players, downloads, VPN...) are updated constantly and
+     * are noise on the receiving side, so they are skipped. Calls are the exception: only
+     * the first notification of each call is forwarded, later updates are ignored.
+     */
+    private fun shouldSkipOngoing(sbn: StatusBarNotification): Boolean {
+        val notification = sbn.notification
+        val ongoingFlags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_FOREGROUND_SERVICE
+        val isOngoing = (notification.flags and ongoingFlags) != 0 ||
+            notification.category == Notification.CATEGORY_PROGRESS
+        if (!isOngoing) return false
+
+        if (notification.category == Notification.CATEGORY_CALL) {
+            return !notifiedCalls.add(sbn.key)
+        }
+        return true
     }
 
     private fun firstNonBlankText(vararg candidates: String?): String? {
