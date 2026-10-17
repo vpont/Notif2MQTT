@@ -115,7 +115,7 @@ Notifications are transmitted as JSON:
 }
 ```
 
-**Urgency Mapping**: 4-5 = "high" (CRITICAL), 3 = "normal" (NORMAL), 2 = "low" (LOW), 0-1 = "minimal" (LOW)
+**Urgency Mapping**: importance 5 or category `call`/`alarm` = "critical" (CRITICAL), 4 = "high" (NORMAL), 3 = "normal" (NORMAL), 2 = "low" (LOW), 0-1 = "minimal" (LOW)
 **Optional Fields**: `icon` (Base64 PNG, 128x128), `previewImage` (Base64 JPEG, 256x256)
 
 ## Build System

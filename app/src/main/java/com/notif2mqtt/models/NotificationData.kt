@@ -34,7 +34,9 @@ data class NotificationData(
 
     private fun getUrgencyLevel(): String {
         return when {
-            importance >= 4 -> "high"      // IMPORTANCE_HIGH or MAX
+            // IMPORTANCE_MAX, calls and alarms
+            importance >= 5 || category == "call" || category == "alarm" -> "critical"
+            importance == 4 -> "high"      // IMPORTANCE_HIGH (heads-up)
             importance == 3 -> "normal"    // IMPORTANCE_DEFAULT
             importance == 2 -> "low"       // IMPORTANCE_LOW
             else -> "minimal"              // IMPORTANCE_MIN or NONE
