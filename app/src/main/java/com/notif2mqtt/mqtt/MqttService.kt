@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import android.os.IBinder
@@ -16,13 +17,20 @@ import com.notif2mqtt.MainActivity
 import com.notif2mqtt.R
 import com.notif2mqtt.models.ConnectionState
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 class MqttService : Service() {
     private lateinit var mqttManager: MqttManager
     private var wakeLock: PowerManager.WakeLock? = null
     private val serviceScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default + kotlinx.coroutines.SupervisorJob())
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private var wifiCallback: ConnectivityManager.NetworkCallback? = null
+    // Tracked from callbacks because activeNetwork can still report a WiFi that was just lost
+    private val wifiNetworks = java.util.concurrent.CopyOnWriteArraySet<Network>()
+    private val networkChanged = Channel<Unit>(Channel.CONFLATED)
 
     companion object {
         private const val TAG = "MqttService"
@@ -122,14 +130,32 @@ class MqttService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "Service destroyed")
+        val connectivityManager = getSystemService(ConnectivityManager::class.java)
+        listOfNotNull(networkCallback, wifiCallback).forEach {
+            try {
+                connectivityManager.unregisterNetworkCallback(it)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "Network callback was not registered", e)
+            }
+        }
+        networkCallback = null
+        wifiCallback = null
         serviceScope.cancel() // Cancel all coroutines
         mqttManager.disconnect()
         wakeLock?.release()
     }
 
     private suspend fun connectWithRetry() {
+        val settings = com.notif2mqtt.SettingsManager(this)
         while (true) {
-            if (mqttManager.connectionState.value != ConnectionState.CONNECTED) {
+            if (settings.wifiOnly && wifiNetworks.isEmpty()) {
+                // WiFi-only mode and no WiFi: stay disconnected and don't retry until the network changes
+                if (mqttManager.connectionState.value != ConnectionState.WAITING_WIFI) {
+                    mqttManager.disconnect()
+                    mqttManager.connectionState.value = ConnectionState.WAITING_WIFI
+                }
+                updateNotification(getString(R.string.waiting_wifi))
+            } else if (mqttManager.connectionState.value != ConnectionState.CONNECTED) {
                 val result = mqttManager.connectAsync()
                 if (result.isSuccess) {
                     updateNotification(getString(R.string.connected))
@@ -138,7 +164,8 @@ class MqttService : Service() {
                     delay(5000) // Wait 5 seconds before retry
                 }
             }
-            delay(5000) // Check connection state every 5 seconds
+            // Wait 5 seconds, or wake up early when the network changes (e.g. WiFi becomes available)
+            withTimeoutOrNull(5000) { networkChanged.receive() }
         }
     }
 
@@ -146,21 +173,41 @@ class MqttService : Service() {
         val connectivityManager = getSystemService(ConnectivityManager::class.java)
         val networkRequest = NetworkRequest.Builder().build()
 
-        connectivityManager.registerNetworkCallback(networkRequest, object : ConnectivityManager.NetworkCallback() {
+        val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                serviceScope.launch {
-                    delay(5000) // 5 second delay before retrying
-            if (mqttManager.connectionState.value != ConnectionState.CONNECTED) {
-                        mqttManager.connectAsync()
-                    }
-                }
+                networkChanged.trySend(Unit)
+            }
+
+            override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+                networkChanged.trySend(Unit)
             }
 
             override fun onLost(network: Network) {
-                mqttManager.connectionState.value = ConnectionState.DISCONNECTED
-                updateNotification(getString(R.string.disconnected))
+                if (connectivityManager.activeNetwork == null) {
+                    mqttManager.connectionState.value = ConnectionState.DISCONNECTED
+                }
+                networkChanged.trySend(Unit)
             }
-        })
+        }
+        connectivityManager.registerNetworkCallback(networkRequest, callback)
+        networkCallback = callback
+
+        val wifiRequest = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+        val wifi = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                wifiNetworks.add(network)
+                networkChanged.trySend(Unit)
+            }
+
+            override fun onLost(network: Network) {
+                wifiNetworks.remove(network)
+                networkChanged.trySend(Unit)
+            }
+        }
+        connectivityManager.registerNetworkCallback(wifiRequest, wifi)
+        wifiCallback = wifi
     }
 
     private fun createNotificationChannel() {

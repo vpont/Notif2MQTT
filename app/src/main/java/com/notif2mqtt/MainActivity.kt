@@ -242,6 +242,7 @@ class MainActivity : AppCompatActivity() {
                 if (useTls) getString(R.string.connected_tls) else getString(R.string.connected)
             }
             ConnectionState.DISCONNECTED -> getString(R.string.disconnected)
+            ConnectionState.WAITING_WIFI -> getString(R.string.waiting_wifi)
             ConnectionState.ERROR -> getString(R.string.error)
         }
 

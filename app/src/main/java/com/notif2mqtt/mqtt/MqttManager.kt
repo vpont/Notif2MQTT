@@ -169,6 +169,12 @@ class MqttManager(private val context: Context) {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to connect to MQTT broker", e)
+            try {
+                mqttClient?.close()
+            } catch (closeError: Exception) {
+                Log.w(TAG, "Error closing failed MQTT client", closeError)
+            }
+            mqttClient = null
             connectionState.value = ConnectionState.ERROR
             Result.failure(e)
         }

@@ -39,6 +39,7 @@
     <string name="connected">Connected</string>
     <string name="connected_tls">Connected (TLS)</string>
     <string name="disconnected">Disconnected</string>
+    <string name="waiting_wifi">Waiting for WiFi</string>
     <string name="error">Error</string>
 
     <!-- Validation Messages -->
