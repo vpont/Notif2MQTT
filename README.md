@@ -11,7 +11,7 @@ A lightweight native Android app that captures all device notifications and send
 - 🚫 **App Exclusions**: Filter specific applications
 - ⚡ **Background Service**: Continuous operation
 - 🔋 **Optimized**: Minimal battery consumption
-- 🎯 **Urgency Levels**: Captures notification importance
+- 🎯 **Importance Levels**: Captures notification importance
 
 ## Requirements
 
@@ -78,17 +78,15 @@ Notifications are sent in JSON format:
   "timestamp": 1703001234567,
   "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACA...",
   "importance": 4,
-  "urgency": "high",
   "category": "msg"
 }
 ```
 
-### Urgency Levels
+### Importance
 
-- **high**: Critical notifications (calls, alarms)
-- **normal**: Standard messages (WhatsApp, Telegram)
-- **low**: Low importance notifications
-- **minimal**: Silent notifications
+The `importance` field is the effective Android importance of the notification (0-5), as
+ranked by the system (it reflects the user's channel settings). Consumers derive
+their own priority from `importance` and `category`.
 
 ### Notification Categories
 

@@ -82,7 +82,7 @@ MainActivity (UI layer for configuration)
 
 - **MainActivity** (`app/src/main/java/com/notif2mqtt/MainActivity.kt`): Configuration UI. RecyclerView for app exclusion list, TextInputLayout fields for MQTT settings, permission status display. Updates MqttService when settings change.
 
-- **NotificationData** (`app/src/main/java/com/notif2mqtt/models/NotificationData.kt`): Data class representing a captured notification. Provides `toJson()` for MQTT transmission and `getUrgencyLevel()` to map Android importance levels to standard urgency levels.
+- **NotificationData** (`app/src/main/java/com/notif2mqtt/models/NotificationData.kt`): Data class representing a captured notification. Provides `toJson()` for MQTT transmission.
 
 - **BootReceiver** (`app/src/main/java/com/notif2mqtt/BootReceiver.kt`): Broadcast receiver that auto-starts MqttService on device boot.
 
@@ -90,7 +90,7 @@ MainActivity (UI layer for configuration)
 
 1. **Notification Capture**: Android system notification arrives → `NotificationListenerService.onNotificationPosted()`
 2. **Extraction**: Extract package name, app name, title, text, importance, category, icon (as Base64)
-3. **Modeling**: Create `NotificationData` object, calculate urgency level
+3. **Modeling**: Create `NotificationData` object
 4. **Publishing**: Intent sent to `MqttService` with serialized notification
 5. **MQTT Transmission**: `MqttManager` publishes JSON to configured MQTT topic (QoS 1)
 
@@ -110,12 +110,11 @@ Notifications are transmitted as JSON:
   "icon": "iVBORw0KGgo...",
   "previewImage": "...base64...",
   "importance": 4,
-  "urgency": "high",
   "category": "msg"
 }
 ```
 
-**Urgency Mapping**: importance 5 or category `call`/`alarm` = "critical" (CRITICAL), 4 = "high" (NORMAL), 3 = "normal" (NORMAL), 2 = "low" (LOW), 0-1 = "minimal" (LOW)
+**Importance**: effective Android importance (0-5) from the system ranking; consumers map `importance` + `category` to their own priority
 **Optional Fields**: `icon` (Base64 PNG, 128x128), `previewImage` (Base64 JPEG, 256x256)
 
 ## Build System

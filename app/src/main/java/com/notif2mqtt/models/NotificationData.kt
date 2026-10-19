@@ -22,7 +22,6 @@ data class NotificationData(
         json.put("timestamp", timestamp)
         json.put("importance", importance)
         json.put("category", category ?: "")
-        json.put("urgency", getUrgencyLevel())  // Helper field
         if (icon != null) {
             json.put("icon", icon)
         }
@@ -30,17 +29,6 @@ data class NotificationData(
             json.put("previewImage", previewImage)
         }
         return json.toString()
-    }
-
-    private fun getUrgencyLevel(): String {
-        return when {
-            // IMPORTANCE_MAX, calls and alarms
-            importance >= 5 || category == "call" || category == "alarm" -> "critical"
-            importance == 4 -> "high"      // IMPORTANCE_HIGH (heads-up)
-            importance == 3 -> "normal"    // IMPORTANCE_DEFAULT
-            importance == 2 -> "low"       // IMPORTANCE_LOW
-            else -> "minimal"              // IMPORTANCE_MIN or NONE
-        }
     }
 
     companion object {
