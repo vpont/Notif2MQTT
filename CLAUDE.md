@@ -78,7 +78,7 @@ MainActivity (UI layer for configuration)
 
 - **MqttManager** (`app/src/main/java/com/notif2mqtt/mqtt/MqttManager.kt`): Lightweight wrapper around Eclipse Paho MQTT client. Handles connection setup, authentication, SSL/TLS configuration, and message publishing with QoS 1 (at-least-once delivery). Supports both unencrypted TCP and encrypted SSL connections.
 
-- **SettingsManager** (`app/src/main/java/com/notif2mqtt/SettingsManager.kt`): Centralized configuration using EncryptedSharedPreferences with AES256-GCM encryption. Manages MQTT broker settings, topic, credentials, app exclusion list, and service state with secure encryption.
+- **SettingsManager** (`app/src/main/java/com/notif2mqtt/SettingsManager.kt`): Centralized configuration in SharedPreferences; sensitive values (broker, topic, credentials, client ID) are encrypted via `PrefsCrypto`. Manages MQTT broker settings, topic, credentials, app exclusion list, and service state with secure encryption.
 
 - **MainActivity** (`app/src/main/java/com/notif2mqtt/MainActivity.kt`): Configuration UI. RecyclerView for app exclusion list, TextInputLayout fields for MQTT settings, permission status display. Updates MqttService when settings change.
 
@@ -124,25 +124,26 @@ Notifications are transmitted as JSON:
 - **Root**: `build.gradle.kts` - Kotlin, Android Gradle Plugin version management
 - **App Module**: `app/build.gradle.kts` - Dependencies, build types, product flavors
 - **Namespace**: `com.notif2mqtt`
-- **Target SDK**: 36 (Android 16), **Min SDK**: 24 (Android 7.0)
-- **Build Tools**: 36.1.0
-- **Android Gradle Plugin**: 9.0.0
+- **Compile/Target SDK**: 37, **Min SDK**: 24 (Android 7.0)
+- **Build Tools**: 37.0.0
+- **Android Gradle Plugin**: 9.4.1
+- **Gradle**: 9.8.1 (wrapper)
 - **Kotlin**: Built-in Kotlin (AGP 9.0), **JVM Target**: 17
 
 **Key Dependencies**:
 
-- `androidx.core:core-ktx:1.12.0` - AndroidX core extensions
-- `androidx.appcompat:appcompat:1.6.1` - Core AndroidX libraries
-- `com.google.android.material:material:1.11.0` - Material Design 3
-- `androidx.constraintlayout:constraintlayout:2.1.4` - Layouts
-- `androidx.recyclerview:recyclerview:1.3.2` - List UI component
-- `androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0` - ViewModel
-- `androidx.lifecycle:lifecycle-runtime-ktx:2.7.0` - Lifecycle runtime
-- `org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3` - Coroutines
-- `androidx.security:security-crypto:1.1.0-alpha06` - Encrypted preferences for sensitive credentials
+- `androidx.core:core-ktx:1.19.1` - AndroidX core extensions
+- `androidx.appcompat:appcompat:1.8.0` - Core AndroidX libraries
+- `com.google.android.material:material:1.14.0` - Material Design 3
+- `androidx.constraintlayout:constraintlayout:2.2.2` - Layouts
+- `androidx.recyclerview:recyclerview:1.4.0` - List UI component
+- `androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0` - ViewModel
+- `androidx.lifecycle:lifecycle-runtime-ktx:2.11.0` - Lifecycle runtime
+- `org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0` - Coroutines
+- `com.google.crypto.tink:tink-android:1.24.0` - AEAD encryption for sensitive preferences
 - `org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5` - MQTT client
 - `org.eclipse.paho:org.eclipse.paho.android.service:1.1.1` - Android MQTT service
-- `org.json:json:20231013` - JSON
+- `org.json:json:20260814` - JSON
 
 **Optimization**:
 
@@ -169,7 +170,7 @@ Located in `AndroidManifest.xml`:
 
 3. **SSL/TLS Support**: MQTT connections support both unencrypted TCP (`tcp://`) and encrypted SSL (`ssl://`) protocols. SSL connections use trust-all certificates by default to accommodate self-signed certificates common in MQTT deployments.
 
-4. **EncryptedSharedPreferences**: Credentials and settings encrypted using AES256-GCM via AndroidX Security Crypto library. MasterKey uses AES256-GCM key scheme with SIV key encryption and GCM value encryption for maximum security.
+4. **Encrypted Preferences (Tink)**: `PrefsCrypto` encrypts sensitive values with a Tink AES256-GCM AEAD keyset, itself wrapped by a master key in the Android Keystore. Encrypted values are stored Base64-encoded with a `v1:` prefix.
 
 5. **Base64 Icons**: Notification icons encoded as Base64 strings in JSON payload to self-contain notification data within MQTT message. Icons resized to 128x128 for performance.
 
@@ -217,6 +218,7 @@ app/src/main/
 │   ├── MainActivity.kt            # UI configuration & app list
 │   ├── NotificationListener.kt    # System notification capture
 │   ├── SettingsManager.kt         # Configuration persistence
+│   ├── PrefsCrypto.kt             # Tink-based preference encryption
 │   ├── BootReceiver.kt            # Auto-start on boot
 │   ├── mqtt/
 │   │   ├── MqttService.kt         # Background foreground service
@@ -234,7 +236,7 @@ app/src/main/
 **Latest Changes**:
 
 - **TLS/SSL Support**: Added secure MQTT connections with `ssl://` protocol support and self-signed certificate handling
-- **Build System Updates**: Updated Android Gradle Plugin to 9.0.0 with built-in Kotlin (JDK 17)
+- **Build System Updates**: Updated to AGP 9.4.1, Gradle 9.8.1 and SDK 37 with built-in Kotlin (JVM target 17)
 - **Enhanced UI**: Added TLS connection status indicators and improved broker URL validation
 
 ## Related Projects
